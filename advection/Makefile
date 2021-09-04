@@ -7,18 +7,20 @@
 #  4 January 2013
 ###################################################################
 
-# compilers/flags 
+# compilers/flags
 CXX = g++
 CC  = gcc
 F90 = gfortran
 
-# compilers/flags 
+# compilers/flags
 CXXFLAGS = -O2
 CFLAGS   = -O2
 FFLAGS   = -O2
 
 
 # makefile targets
+all : advection_cpp.exe advection_c.exe advection_f90.exe
+
 advection_cpp.exe : advection.cpp output.cpp initialize.cpp get_time.c
 	$(CXX) $(CXXFLAGS) $^ -lm -o $@
 
@@ -28,13 +30,11 @@ advection_c.exe : advection.c output.c initialize.c get_time.c
 advection_f90.exe : advection.f90 output.f90 initialize.f90 get_time.f90
 	$(F90) $(FFLAGS) $^ -o $@
 
-all : advection_cpp.exe advection_c.exe advection_f90.exe
-
 clean :
 	\rm -f *.o u_sol*
 
 realclean : clean
-	\rm -f *.exe *~ 
+	\rm -f *.exe *~
 
 
 ####### End of Makefile #######
