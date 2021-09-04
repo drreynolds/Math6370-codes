@@ -1,0 +1,5 @@
+1. compile and run the serial version.
+2. add in timers to see the relative work in each portion of the code.
+3. parallelize the work sections one at a time, from slowest to
+   fastest, running each on 2 threads.
+4. show the parallel, do and workshare constructs
