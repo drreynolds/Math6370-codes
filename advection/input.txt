@@ -1,0 +1,8 @@
+ &inputs
+  nx = 200,
+  ny = 200,
+  nt = 1000000,
+  tstop = 0.5,
+  c = 2.0,
+  dtoutput = 0.01,
+ &end
