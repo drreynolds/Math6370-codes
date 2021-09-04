@@ -3,32 +3,35 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 6370
-#  4 January 2013
+#  Math 4370/6370
+#  7 February 2015
 ###################################################################
 
-# compilers/flags
+# compilers
 CXX = g++
 CC  = gcc
 F90 = gfortran
 
-# compilers/flags
+# flags
 CXXFLAGS = -O2
 CFLAGS   = -O2
 FFLAGS   = -O2
 
+OMPFLAGS = -fopenmp
+
 
 # makefile targets
-all : advection_cpp.exe advection_c.exe advection_f90.exe
+all : advection_omp_cpp.exe advection_omp_c.exe advection_omp_f90.exe
 
-advection_cpp.exe : advection.cpp output.cpp initialize.cpp get_time.c
-	$(CXX) $(CXXFLAGS) $^ -lm -o $@
+advection_omp_cpp.exe : advection_omp.cpp output.cpp initialize.cpp get_time.c
+	$(CXX) $(OMPFLAGS) $(CXXFLAGS) $^ -lm -o $@
 
-advection_c.exe : advection.c output.c initialize.c get_time.c
-	$(CC) $(CFLAGS) $^ -lm -o $@
+advection_omp_c.exe : advection_omp.c output.c initialize.c get_time.c
+	$(CC) $(OMPFLAGS) $(CFLAGS) $^ -lm -o $@
 
-advection_f90.exe : advection.f90 output.f90 initialize.f90 get_time.f90
-	$(F90) $(FFLAGS) $^ -o $@
+advection_omp_f90.exe : advection_omp.f90 output.f90 initialize.f90 get_time.f90
+	$(F90) $(OMPFLAGS) $(FFLAGS) $^ -o $@
+
 
 clean :
 	\rm -f *.o u_sol*

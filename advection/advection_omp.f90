@@ -8,6 +8,17 @@
 !=================================================================
 
 
+double precision function TIMER()
+  !-----------------------------------------------------------------
+  ! Function to use the best available timer
+  !-----------------------------------------------------------------
+  double precision :: dtime
+  double precision, external :: omp_get_wtime
+  call get_time(TIMER)
+  !$TIMER = omp_get_wtime()
+end function TIMER
+
+
 program advection
   !===============================================================
   ! inclusions
@@ -27,16 +38,17 @@ program advection
   end interface
 
   ! declarations
-  integer :: nx, ny, nt, i, j, noutput, it
-  real*8 :: tstop, c, dtoutput, dx, dy, t, toutput, dt
+  integer :: nx, ny, nt, j, i, noutput, it
+  real*8 :: tstop, c, dtoutput, dx, dy, y_c, y_h, x_c, x_h, t, toutput, dt
   real*8 :: stime, ftime, v2_E, v2_W, v3_N, v3_S, v1_W, v1_E, v1_S, v1_N
   real*8 :: runtime, iotime, inittime
   real*8, dimension(:,:), allocatable :: u, v1, v2, v3
+  real*8, external :: TIMER
   namelist /inputs/ nx, ny, nt, tstop, c, dtoutput
   
   ! internals
   
-  call get_time(stime)
+  stime = TIMER()
   ! read problem parameters from input file (should be in this order):
   !    nx - number of nodes in x-direction
   !    ny - number of nodes in y-direction
@@ -54,11 +66,11 @@ program advection
   print *, '   c =',c
   print *, '   dtoutput =',dtoutput
   print *, '  '
-  call get_time(ftime)
+  ftime = TIMER()
   iotime = ftime-stime
 
   ! allocate arrays
-  call get_time(stime)
+  stime = TIMER()
   allocate(u(nx,ny),v1(nx,ny),v2(nx,ny),v3(nx,ny))
 
   ! set grid spacing
@@ -67,7 +79,7 @@ program advection
 
   ! set initial conditions
   call initialize(u,v1,v2,v3,c,dx,dy,nx,ny)
-  call get_time(ftime)
+  ftime = TIMER()
   inittime = ftime-stime
 
   ! set initial time, output initial solution
@@ -76,27 +88,34 @@ program advection
   noutput = 0
   print '(A,i4,A,i8,A,es9.2)', 'writing output file ',noutput, &
        ', step = ',0,',  t =',t
-  call get_time(stime)
+  stime = TIMER()
   call output(u,t,nx,ny,noutput)
-  call get_time(ftime)
+  ftime = TIMER()
   iotime = iotime+ftime-stime
 
-  ! set time step
+  ! set time step size
   dt = min(dx/c/5.d1, dy/c/5.d1)
 
+  ! start OpenMP parallelism
+  !$omp parallel default(shared) private(v2_E,v2_W,v3_N,v3_S,v1_W,v1_E,v1_S,v1_N,it,i,j)
+
   ! start time stepping
+  !$omp single
   runtime = 0.d0
+  !$omp end single nowait
   do it=1,nt
 
      ! start timer
-     call get_time(stime)
+     !$omp master
+     stime = TIMER()
+     !$omp end master
 
      ! first update v1 to get to half time step
      !    get relevant values for this location
+     !$omp do collapse(2)
      do j=1,ny
         do i=1,nx
 
-           ! access relevant components of v2 and v3
            if (i==nx) then
               v2_E = v2(1,j)
            else
@@ -115,13 +134,13 @@ program advection
 
         end do
      end do
+     !$omp end do
 
      ! next update v2 & v3 to get to full time step
      !    get relevant values for this location
+     !$omp do collapse(2)
      do j=1,ny
         do i=1,nx
-
-           ! access relevant components of v1
            if (i==1) then
               v1_W = v1(nx,j)
            else
@@ -141,42 +160,54 @@ program advection
 
         end do
      end do
+     !$omp end do
 
-     ! update and plot solution
+     ! update solution
+     !$omp workshare
      u = u + dt*v1
+     !$omp end workshare
 
      ! update time
+     !$omp single
      t = t + dt
-     call get_time(ftime)
+     !$omp end single
+     !$omp master 
+     ftime = TIMER()
      runtime = runtime+ftime-stime
+     !$omp end master 
 
      ! stop simulation if we've reached tstop
      if (t >= tstop)  exit
 
      ! output solution periodically
+     !$omp master
      if (abs(t-toutput-dtoutput) <= 1.e-14) then
-        call get_time(stime)
+        stime = TIMER()
         toutput = t
         noutput = noutput+1
         print '(A,i4,A,i8,A,es9.2)', 'writing output file ',noutput, &
              ', step = ',it,',  t =',t
         call output(u,t,nx,ny,noutput)
-        call get_time(ftime)
+        ftime = TIMER()
         iotime = iotime+ftime-stime
      end if
+     !$omp end master
 
   end do
 
+  ! end OpenMP parallelism
+  !$omp end parallel
 
   ! output final solution 
-  call get_time(stime)
+  stime = TIMER()
   toutput = t
   noutput = noutput+1
   print '(A,i4,A,i8,A,es9.2)', 'writing output file ',noutput, &
        ', step = ',it,',  t =',t
   call output(u,t,nx,ny,noutput)
-  call get_time(ftime)
+  ftime = TIMER()
   iotime = iotime+ftime-stime
+
 
   ! output runtime
   print *, ' total initialization time = ', inittime
