@@ -1,0 +1,40 @@
+Building:
+
+1. Unpack the tar file
+2. Edit the Makefile as follows:
+   a. Set CC to the C compiler you wish to use (e.g. cc)
+   b. Set CFLAGS to any required C compiler flags to enable processing
+      of OpenMP directives (e.g. -mp or -omp).  
+      Standard optimisation is also recommended (e.g. -O).
+   c. Set LDFLAGS to any required C linker flags
+   d. Set CPP to the local C-Preprocessor (e.g. /usr/local/bin/cpp) to
+      make the C compiler invoke cpp on .c and .h files 
+   e. OpenMP 2.0 features can be invoked by setting the flag OMPFLAG =
+      -DOMPVER2. If this flag is left unset then OpenMP 1.0 compatibility
+      is ensured. 
+   f. Set CLOCKFLAG to the clock routine you wish to use. Available options are:
+      -DOMPCLOCK    OMP_GET_WTIME  	 OpenMP clock
+      -DGTODCLOCK   get_time_of_day  	 Uses get-time-of-day clock routine
+      If available, it is recommended that the OpenMP function
+      OMP_GET_WTIME() should be used. Alternatively, you may wish to
+      supply your own version of getclock.f to use a different clock
+      routine. If another routine is used, it is recommended that the
+      clock routine returns 64-bit floating point values and is
+      accurate to the nearest microsecond. 
+   g. Set LIBS to any required libraries.
+3. Set the value of the macro MHZ in schedbench.c to the CPU clock rate in MHz
+4. Type make
+
+
+Running:
+
+1. Set the environment variable OMP_NUM_THREADS to the number of
+   threads you wish to use. 
+2. Run one of the synchronisation benchmark syncbench, the scheduling
+   benchmark schedbench, or the array benchmark for array size = n,
+   arraybench_n. 
+3. For the array benchmark a separate executable is created for each
+   array size specified in the Makefile. To investigate the variation
+   of overhead time with array size it is necessary to run each
+   executable arraybench_n separately. 
+
