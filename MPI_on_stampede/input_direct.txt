@@ -1,0 +1,5 @@
+ &inputs
+  gamma = 0.01,
+  global_N = 10000000,
+ &end
+

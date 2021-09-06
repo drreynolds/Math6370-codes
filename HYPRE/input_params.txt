@@ -1,0 +1,16 @@
+Nx = 2048
+Ny = 2048
+Px = 2
+Py = 3
+mu_x = 2.0
+mu_y = 1.0
+xL = -0.5
+xR = 0.5
+yL = -0.5
+yR = 0.5
+tol = 1.0e-3
+maxit = 50
+relch = 1
+rlxtype = 3
+npre = 3
+npost = 3
