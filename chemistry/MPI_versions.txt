@@ -1,0 +1,22 @@
+Differences between various MPI versions of the code:
+
+chemistry_mpi:
+  Statically allocates a pre-defined number of cells to each
+  processor.  Root processor sets temperature field, distributes
+  values to procs, who compute local portions and return solution
+  values to root.
+
+chemistry_mpi2  (manager-worker)
+  Dynamically allocates cells to each worker processor.  
+  Distributes individual spatial entries to worker processors on a
+  first-come-first-served basis (one entry at a time).  
+  *Requires at least 2 processors
+
+chemistry_mpi3  (manager-worker)
+  Dynamically allocates cells to each worker processor.  
+  Distributes individual spatial entries to worker processors on a
+  first-come-first-served basis (in chunks).  
+  *Requires at least 2 processors
+  **If n is not a multiple (chunk*p), where p is the number of
+    processors, it will do a little extraneous work
+  ***Currently only works in Fortran
