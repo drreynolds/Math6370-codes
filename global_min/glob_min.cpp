@@ -72,16 +72,16 @@ int main(int argc, char* argv[]) {
       // perform back-tracking line search for gamma
       for (l=1; l<=50; l++) {
 
-	// set test point and calculate function value
-	tstpt[0] = pt[0] - gamma*df[0];
-	tstpt[1] = pt[1] - gamma*df[1];
-	curval = f(tstpt[0],tstpt[1]);
+	      // set test point and calculate function value
+	      tstpt[0] = pt[0] - gamma*df[0];
+	      tstpt[1] = pt[1] - gamma*df[1];
+	      curval = f(tstpt[0],tstpt[1]);
 
-	// if test point successful, exit; otherwise reduce gamma
-	if (curval < fval) 
-	  break;
-	else 
-	  gamma *= 0.5;
+      	// if test point successful, exit; otherwise reduce gamma
+      	if (curval < fval) 
+	        break;
+	      else 
+	        gamma *= 0.5;
 
       } // end for l
 
