@@ -11,19 +11,19 @@
 
 
 // Prototypes
-void chem_solver(double, double*, double*, double*, 
+void chem_solver(double, double*, double*, double*,
 		 double, double, int, int*, double*);
 
 
-/* Example routine to compute the equilibrium chemical densities at 
+/* Example routine to compute the equilibrium chemical densities at
    a number of spatial locations, given a (random) background temperature
-   field.  The chemical rate equations and solution strategy are in the 
+   field.  The chemical rate equations and solution strategy are in the
    subroutine chem_solver, which is called at every spatial location. */
 int main(int argc, char* argv[]) {
 
   // declarations
   int maxit, n, i, its, it, is, ie, js, je;
-  double lam, eps, *T, *u, *v, *w, res, runtime;
+  double lam, eps, *Tfull, *T, *ufull, *u, *vfull, *v, *wfull, *w, res, runtime;
   double stime, ftime;
   int ierr, numprocs, myid;
   int *counts, *displs;
@@ -76,7 +76,7 @@ int main(int argc, char* argv[]) {
     ierr = MPI_Finalize();
     return 1;
   }
-  
+
   // determine this processor's interval
   is = ((int) 1.0*n/numprocs)*myid;
   ie = ((int) 1.0*n/numprocs)*(myid+1) - 1;
@@ -84,29 +84,25 @@ int main(int argc, char* argv[]) {
 
   // root node allocates temperature field and solution arrays
   if (myid == 0) {
-    T = new double[n];
-    u = new double[n];
-    v = new double[n];
-    w = new double[n];
+    Tfull = new double[n];
+    ufull = new double[n];
+    vfull = new double[n];
+    wfull = new double[n];
 
     // set random temperature field, initial guesses at chemical densities
-    for (i=0; i<n; i++)  T[i] = random() / (pow(2.0,31.0) - 1.0);
-    for (i=0; i<n; i++)  u[i] = 0.35;
-    for (i=0; i<n; i++)  v[i] = 0.1;
-    for (i=0; i<n; i++)  w[i] = 0.5;
+    for (i=0; i<n; i++)  Tfull[i] = random() / (pow(2.0,31.0) - 1.0);
   }
-  // other nodes allocate local temperature field and solution arrays
-  else {
-    T = new double[ie-is+1];
-    u = new double[ie-is+1];
-    v = new double[ie-is+1];
-    w = new double[ie-is+1];
 
-    // set initial guesses at chemical densities
-    for (i=0; i<(ie-is+1); i++)  u[i] = 0.35;
-    for (i=0; i<(ie-is+1); i++)  v[i] = 0.1;
-    for (i=0; i<(ie-is+1); i++)  w[i] = 0.5;
-  }
+  // all nodes allocate local temperature field and solution arrays
+  T = new double[ie-is+1];
+  u = new double[ie-is+1];
+  v = new double[ie-is+1];
+  w = new double[ie-is+1];
+
+  // set initial guesses at chemical densities
+  for (i=0; i<(ie-is+1); i++)  u[i] = 0.35;
+  for (i=0; i<(ie-is+1); i++)  v[i] = 0.1;
+  for (i=0; i<(ie-is+1); i++)  w[i] = 0.5;
 
   // allocate gatherv/scatterv temporary arrays
   counts = new int[numprocs];
@@ -123,7 +119,7 @@ int main(int argc, char* argv[]) {
     counts[i] = je-js+1;
     displs[i] = js;
   }
-  ierr = MPI_Scatterv(T, counts, displs, MPI_DOUBLE, T, 
+  ierr = MPI_Scatterv(Tfull, counts, displs, MPI_DOUBLE, T,
 		      ie-is+1, MPI_DOUBLE, 0, MPI_COMM_WORLD);
 
 
@@ -135,7 +131,7 @@ int main(int argc, char* argv[]) {
       // printf("    i = %i,  its = %i\n", i, its);
     }
     else {
-      printf("    error: i = %i,  its = %i,  res = %.2e,  u = %.2e,  v = %.2e,  w = %.2e\n", 
+      printf("    error: i = %i,  its = %i,  res = %.2e,  u = %.2e,  v = %.2e,  w = %.2e\n",
 	     i, its, res, u[i], v[i], w[i]);
       ierr = MPI_Abort(MPI_COMM_WORLD, 1);
       return 1;
@@ -143,21 +139,21 @@ int main(int argc, char* argv[]) {
   }
 
   // root node collects results
-  ierr = MPI_Gatherv(u, ie-is+1, MPI_DOUBLE, u, counts, 
+  ierr = MPI_Gatherv(u, ie-is+1, MPI_DOUBLE, ufull, counts,
 		     displs, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   if (ierr != 0) {
     printf("Error in MPI_Gatherv = %i\n",ierr);
     ierr = MPI_Abort(MPI_COMM_WORLD, 1);
     return 1;
   }
-  ierr = MPI_Gatherv(v, ie-is+1, MPI_DOUBLE, v, counts, 
+  ierr = MPI_Gatherv(v, ie-is+1, MPI_DOUBLE, vfull, counts,
 		     displs, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   if (ierr != 0) {
     printf("Error in MPI_Gatherv = %i\n",ierr);
     ierr = MPI_Abort(MPI_COMM_WORLD, 1);
     return 1;
   }
-  ierr = MPI_Gatherv(w, ie-is+1, MPI_DOUBLE, w, counts, 
+  ierr = MPI_Gatherv(w, ie-is+1, MPI_DOUBLE, wfull, counts,
 		     displs, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   if (ierr != 0) {
     printf("Error in MPI_Gatherv = %i\n",ierr);
@@ -170,10 +166,16 @@ int main(int argc, char* argv[]) {
   runtime = ftime - stime;
 
   // output solution time on each proc
-  printf(" proc %i computed %i iterations, runtime = %.16e\n", 
+  printf(" proc %i computed %i iterations, runtime = %.16e\n",
 	 myid, ie-is+1, runtime);
 
   // free temperature and solution arrays
+  if (myid == 0) {
+    delete[] Tfull;
+    delete[] ufull;
+    delete[] vfull;
+    delete[] wfull;
+  }
   delete[] T;
   delete[] u;
   delete[] v;
