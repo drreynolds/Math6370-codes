@@ -3,31 +3,22 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 6370
-#  4 January 2013
+#  Math 4370/6370
+#  18 October 2021
 ###################################################################
 
-# compilers
+# compilers/flags
 CXX = g++
-CC  = gcc
-F90 = gfortran
-
-# flags
 CXXFLAGS = -O2
-CFLAGS   = -O2
-FFLAGS   = -O2
+ifndef RAJA
+  RAJA = /usr/local/raja-0.12.1
+endif
 
 # makefile targets
-all : chemistry_cpp.exe chemistry_c.exe chemistry_f90.exe
+all : chemistry_cpp.exe
 
 chemistry_cpp.exe : chemistry.cpp chem_solver.cpp get_time.c
 	$(CXX) $(CXXFLAGS) $^ -lm -o $@
-
-chemistry_c.exe : chemistry.c chem_solver.c get_time.c
-	$(CC) $(CFLAGS) $^ -lm -o $@
-
-chemistry_f90.exe : chemistry.f90 chem_solver.f90 get_time.f90
-	$(F90) $(FFLAGS) $^ -o $@
 
 clean :
 	\rm -f *.o *.out

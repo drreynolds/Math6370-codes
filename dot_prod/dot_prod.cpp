@@ -8,7 +8,7 @@
 #include <stdlib.h>
 #include <stdio.h>
 #include "get_time.h"
-
+#include "RAJA/RAJA.hpp"
 
 // Example routine to compute the dot-product of two vectors
 int main(int argc, char* argv[]) {
@@ -17,7 +17,7 @@ int main(int argc, char* argv[]) {
   int i, n;
   double *a, *b, sum, alloctime, inittime, runtime;
   double stime, ftime;
-  
+
   // ensure that an argument was passed in
   if (argc < 2) {
     printf("Error: function requires one argument (vector length)\n");
@@ -65,4 +65,3 @@ int main(int argc, char* argv[]) {
 
   return 0;
 } // end main
-

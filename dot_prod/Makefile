@@ -3,34 +3,22 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 6370
-#  4 January 2013
+#  Math 4370/6370
+#  18 October 2021
 ###################################################################
 
-# compilers
+# compilers/flags
 CXX = g++
-CC  = gcc
-F90 = gfortran
-
-# flags 
-CXXFLAGS = -O2
-CFLAGS   = -O2
-FFLAGS   = -O2
+CXXFLAGS = -O2 -std=c++11 -fopenmp
+ifndef RAJA
+  RAJA = /usr/local/raja-0.12.1
+endif
 
 # makefile targets
-all : dot_prod_cpp.exe dot_prod_c.exe dot_prod_f90.exe dot_prod_f.exe
+all : dot_prod_cpp.exe
 
 dot_prod_cpp.exe : dot_prod.cpp get_time.c
-	$(CXX) $(CXXFLAGS) dot_prod.cpp get_time.c -o $@
-
-dot_prod_c.exe : dot_prod.c get_time.c
-	$(CC) $(CFLAGS) dot_prod.c get_time.c -lm -o $@
-
-dot_prod_f90.exe : dot_prod.f90 get_time.f90
-	$(F90) $(FFLAGS) dot_prod.f90 get_time.f90 -o $@
-
-dot_prod_f.exe : dot_prod.f get_time.f90
-	$(F90) $(FFLAGS) dot_prod.f get_time.f90 -o $@
+	$(CXX) $(CXXFLAGS) -I$(RAJA)/include -L$(RAJA)/lib -lRAJA dot_prod.cpp get_time.c -o $@
 
 clean :
 	\rm -f *.o *.out
