@@ -8,6 +8,7 @@ Note: we use branches to focus on specific code types:
 * main: serial
 * openmp: shared-memory parallelization via OpenMP
 * mpi: distributed-memory parallelization via MPI
+* raja: accelerator-based parallelism with RAJA
 
 Daniel R. Reynolds  
 Mathematics @ SMU
