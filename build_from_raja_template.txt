@@ -1,7 +1,11 @@
+#!/bin/bash
+#
 # Note: the following instructions are for Dan's WSL2 laptop:
-# 1. I've installed RAJA v0.12.1 using Spack into /usr/local/raja-0.12.1
-# 2. This laptop has an NVIDIA GeForce GTK 1050 Ti card, with CUDA capability 6.1
-# 3. I've installed CUDA v11.4 into /usr/local/cuda-11.4
+# * I've installed RAJA v0.12.1 using Spack into /usr/local/raja-0.12.1
+# * This laptop has an NVIDIA GeForce GTK 1050 Ti card (CUDA capability 6.1)
+# * I've installed CUDA v11.4 into /usr/local/cuda-11.4
+# * I have CMake v3.18.4 installed into /usr/local/bin
+#
 
 mkdir build && cd build
 cmake -DENABLE_OPENMP=On -DENABLE_CUDA=On -DCMAKE_CUDA_COMPILER=/usr/local/cuda-11.4/bin/nvcc -DRAJA_DIR=/usr/local/raja-0.12.1 -Dcamp_DIR=/usr/local/raja-0.12.1/lib/cmake/camp -DCMAKE_CUDA_ARCHITECTURES=61 ../
