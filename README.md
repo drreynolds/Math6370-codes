@@ -10,5 +10,5 @@ Note: we use branches to focus on specific code types:
 * mpi: distributed-memory parallelization via MPI
 * raja: accelerator-based parallelism with RAJA (C++ only)
 
-[Daniel R. Reynolds](https://github.com/drreynolds)
+[Daniel R. Reynolds](https://github.com/drreynolds)  
 [Mathematics @ SMU](https://www.smu.edu/math)
