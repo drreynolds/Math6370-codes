@@ -14,6 +14,6 @@ if (ENABLE_CUDA)
 endif ()
 
 blt_add_executable(
-  NAME axpy.exe
-  SOURCES axpy.cpp
+  NAME pi_comp.exe
+  SOURCES pi_comp.cpp
   DEPENDS_ON ${example_depends})
