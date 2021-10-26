@@ -14,6 +14,6 @@ if (ENABLE_CUDA)
 endif ()
 
 blt_add_executable(
-  NAME example.exe
-  SOURCES example.cpp
+  NAME dot_prod.exe
+  SOURCES dot_prod.cpp
   DEPENDS_ON ${example_depends})

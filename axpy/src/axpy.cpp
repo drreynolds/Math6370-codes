@@ -73,15 +73,9 @@ int main(int argc, char* argv[]) {
   std::cout << " runtime = " << std::setprecision(16) << runtime.count() << std::endl;
 
   // free vectors
-#if defined(RAJA_ENABLE_CUDA)
   cudaFree(x);
   cudaFree(y);
   cudaFree(z);
-#else
-  delete[] x;
-  delete[] y;
-  delete[] z;
-#endif
 
   return 0;
 } // end main
