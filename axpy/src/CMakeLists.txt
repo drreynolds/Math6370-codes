@@ -21,5 +21,5 @@ endif ()
 
 blt_add_executable(
   NAME axpy.exe
-  SOURCES axpy.cpp get_time.c
+  SOURCES axpy.cpp
   DEPENDS_ON ${example_depends})

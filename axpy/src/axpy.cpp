@@ -1,13 +1,14 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 6370
-   13 January 2013 */
+   Math 4370/6370
+   25 October 2021 */
 
 // Inclusions
 #include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
-#include "get_time.h"
+#include <iostream>
+#include <iomanip>
+#include <cmath>
+#include <chrono>
 #include <RAJA/RAJA.hpp>
 
 
@@ -16,14 +17,14 @@ int main(int argc, char* argv[]) {
 
   // ensure that an argument was passed in
   if (argc < 2) {
-    printf("Error: function requires one argument (vector length)\n");
+    std::cerr << "Error: function requires one argument (vector length)\n";
     return 1;
   }
 
   // set n as the input argument, and ensure it's positive
   int n = atoi(argv[1]);
   if (n < 1) {
-    printf("Error: vector length %i must be greater than 0\n", n);
+    std::cerr << "Error: vector length " << n << " must be greater than 0\n";
     return 1;
   }
 
@@ -43,23 +44,24 @@ int main(int argc, char* argv[]) {
 #if defined(RAJA_ENABLE_CUDA)
   using epolicy = RAJA::cuda_exec<256>;
   using rpolicy = RAJA::cuda_reduce;
-  printf("Running axpy with length %i with RAJA using CUDA backend:\n", n);
+  std::cout << "Running axpy with length " << n << " with RAJA using CUDA backend:\n";
 #elif defined(RAJA_ENABLE_OPENMP)
   using epolicy = RAJA::omp_parallel_for_exec;
   using rpolicy = RAJA::omp_reduce;
-  printf("Running axpy with length %i with RAJA using OpenMP backend:\n", n);
+  std::cout << "Running axpy with length " << n << " with RAJA using OpenMP backend:\n";
 #else
   using epolicy = RAJA::seq_exec;
   using rpolicy = RAJA::seq_reduce;
-  printf("Running axpy with length %i with RAJA using sequential backend:\n", n);
+  std::cout << "Running axpy with length " << n << " with RAJA using sequential backend:\n";
 #endif
 
 
   // start timer
-  double stime = get_time();
+  const std::chrono::time_point<std::chrono::system_clock> stime =
+    std::chrono::system_clock::now();
 
   // initialize a, x and y
-  double a = -3.0;
+  const double a = -3.0;
   RAJA::forall<epolicy>(RAJA::RangeSegment(0,n), [=] RAJA_HOST_DEVICE (int i) {
     x[i] = exp(2.0*(i+1)/n);
     y[i] = 1.0*(n-1)/n;
@@ -77,14 +79,15 @@ int main(int argc, char* argv[]) {
   RAJA::ReduceMax<rpolicy, double> zmax(-1e100);
   RAJA::forall<epolicy>(RAJA::RangeSegment(0,n), [=] RAJA_HOST_DEVICE (int i) {
     zmax.max(z[i]);});
-  printf("  max(z) = %.16e\n",zmax.get());
+  std::cout << "  max(z) = " << std::setprecision(16) << zmax.get() << std::endl;
 
   // stop timer
-  double ftime = get_time();
-  double runtime = ftime - stime;
+  const std::chrono::time_point<std::chrono::system_clock> ftime =
+    std::chrono::system_clock::now();
+  std::chrono::duration<double> runtime = ftime - stime;
 
   // output total time
-  printf(" runtime = %.16e\n",runtime);
+  std::cout << " runtime = " << std::setprecision(16) << runtime.count() << std::endl;
 
   // free vectors
 #if defined(RAJA_ENABLE_CUDA)
