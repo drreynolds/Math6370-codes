@@ -1,0 +1,25 @@
+###############################################################################
+# Copyright (c) 2016-19, Lawrence Livermore National Security, LLC
+# and RAJA project contributors. See the RAJA/COPYRIGHT file for details.
+#
+# SPDX-License-Identifier: (BSD-3-Clause)
+###############################################################################
+
+set(example_depends RAJA)
+
+if (ENABLE_OPENMP)
+  set(example_depends
+    ${example_depends}
+    openmp)
+endif ()
+
+if (ENABLE_CUDA)
+  set(example_depends
+    ${example_depends}
+    cuda)
+endif ()
+
+blt_add_executable(
+  NAME axpy.exe
+  SOURCES axpy.cpp get_time.c
+  DEPENDS_ON ${example_depends})
