@@ -35,8 +35,8 @@ int main(int argc, char* argv[]) {
   std::chrono::time_point<std::chrono::system_clock> stime =
     std::chrono::system_clock::now();
   double *a, *b;
-  cudaMallocManaged((void**)&a, n*sizeof(double), cudaMemAttachGlobal);
-  cudaMallocManaged((void**)&b, n*sizeof(double), cudaMemAttachGlobal);
+  cudaMalloc((void**)&a, n*sizeof(double));
+  cudaMalloc((void**)&b, n*sizeof(double));
   std::chrono::time_point<std::chrono::system_clock> ftime =
     std::chrono::system_clock::now();
   std::chrono::duration<double> alloctime = ftime - stime;

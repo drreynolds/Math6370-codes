@@ -30,9 +30,9 @@ int main(int argc, char* argv[]) {
 
   // allocate the vectors
   double *x, *y, *z;
-  cudaMallocManaged((void**)&x, n*sizeof(double), cudaMemAttachGlobal);
-  cudaMallocManaged((void**)&y, n*sizeof(double), cudaMemAttachGlobal);
-  cudaMallocManaged((void**)&z, n*sizeof(double), cudaMemAttachGlobal);
+  cudaMalloc((void**)&x, n*sizeof(double));
+  cudaMalloc((void**)&y, n*sizeof(double));
+  cudaMalloc((void**)&z, n*sizeof(double));
 
   // set the RAJA policies
   using epolicy = RAJA::cuda_exec<256>;
