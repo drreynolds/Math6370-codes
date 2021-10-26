@@ -1,49 +1,60 @@
-# Example codes (serial)
-
-## dot_prod
-
-Simple example that computes the dot product of two vectors.
+# Example codes (RAJA/CUDA)
 
 ## pi
 
-Example that approximates pi via numerical integration,
+Interactive demo showing RAJA/CUDA parallelization of our earlier serial code to compute pi via numerical integration,
 
   pi = 4\int_{0}^{1} \frac{1}{1+x^2} dx
 
 using the midpoint rule over n equal subintervals
 
-## chemistry
+Key learning topics:
 
-Example that computes equilibrium chemical densities at multiple spatial locations, given a random background temperature field, using a simple damped fixed-point iteration as the nonlinear solver.
+* `raja-template` build structure via CMake
+* RAJA execution and reduction policies
+* `RAJA::ReduceSum`` construct
+* `RAJA::forall` loop construct
+* calling device-specific functions
+
+
+## dot_prod
+
+Interactive demo showing RAJA/CUDA parallelization of our earlier serial dot-product of two vectors.
 
 Key learning topics:
-* Calling external functions
-* Call by reference vs call by value
-* Standard math library
-* Control structures
+
+* `cudaMalloc` and `cudaFree` routines for memory allocation/deallocation on the device
+
+
+## axpy
+
+Simple example that computes the linear combination a*x + y, where x and y are vectors, and a is a scalar.
+
+Key learning topics:
+
+* `RAJA::ReduceMax` reduction construct
+
+
+## global_min
+
+Interactive demo working through a RAJA/CUDA parallelization of our previous lab on performing steepest-descent minimization repeatedly using different initial conditions.
+
+Key learning topics:
+
+*
+
+
+## chemistry
+
+Interactive demo of the RAJA/CUDA paralleization of our equilibrium chemical density computations.
+
+Key learning topics:
+*
+
 
 ## advection
 
-This example sets up and evolves the 2D first order wave equations in time, using a regular staggered spatial discretization and an explicit "leapfrog" time discretization.
+Interactive demo of the RAJA/CUDA parallelization of our 2D advection code.
 
 Key learning topics:
-* File input/output
-* Header files, macros
-* "Flattened" 2D -> 1D array data structures
-* Nontrivial loop structures
-* "() ? () : ()" conditional operators
-* Python postprocessing/visualization of simulation output data
-
-## memory_leak
-
-This example demonstrates how we can use the Linux program "valgrind" to help identify the location of memory leaks in a program.
-
-Key learning topics:
-* Memory leaks
-* Valgrind
-
-## matvec
-
-This example performs a simple matrix-vector product, but where we access the matrix data in different orders, illustrating that knowledge of memory layout is crucial for efficient programs.
-
-Key learning topic: matching loop structure to data layout
+*
