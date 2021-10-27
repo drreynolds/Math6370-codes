@@ -41,15 +41,17 @@ Interactive demo working through a RAJA/CUDA parallelization of our previous lab
 
 Key learning topics:
 
-*
+* `RAJA::ReduceMinLoc` reduction construct -- determine "best" initial condition index
+* then repeat computation once on host to determine `pt` location for global minimum
 
 
 ## chemistry
 
-Interactive demo of the RAJA/CUDA paralleization of our equilibrium chemical density computations.
+Interactive demo of the RAJA/CUDA parallelization of our equilibrium chemical density computations.
 
 Key learning topics:
-*
+
+* `cudaMemcpy` for host->device transfer of temperature array, and then device->host transfer of chemical equilibrium results.
 
 
 ## advection
@@ -57,4 +59,5 @@ Key learning topics:
 Interactive demo of the RAJA/CUDA parallelization of our 2D advection code.
 
 Key learning topics:
-*
+
+* `cudaMemcpyAsync` for transfers of device solution data to host for output to disk.
