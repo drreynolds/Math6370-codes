@@ -14,8 +14,7 @@ Key learning topics:
 * RAJA execution and reduction policies
 * `RAJA::ReduceSum`` construct
 * `RAJA::forall` loop construct
-* calling device-specific functions
-
+* `RAJA_DEVICE` for functions to be called on device
 
 ## dot_prod
 
