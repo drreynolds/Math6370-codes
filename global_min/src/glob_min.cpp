@@ -35,10 +35,8 @@ inline double fy(double, double);
 int main(int argc, char* argv[]) {
 
   // set some parameters
-//  int nx = 100;             // search mesh size
-//  int ny = 100;             // search mesh size
-  int nx = 10;             // search mesh size
-  int ny = 10;             // search mesh size
+  int nx = 100;             // search mesh size
+  int ny = 100;             // search mesh size
 
   // set the RAJA policies
   using epolicy = RAJA::cuda_exec<256>;
@@ -82,16 +80,16 @@ int main(int argc, char* argv[]) {
       double curval;
       for (int l=1; l<=50; l++) {
 
-	      // set test point and calculate function value
-	      tstpt[0] = pt[0] - gamma*df[0];
+        // set test point and calculate function value
+        tstpt[0] = pt[0] - gamma*df[0];
         tstpt[1] = pt[1] - gamma*df[1];
-	      curval = f_dev(tstpt[0],tstpt[1]);
+        curval = f_dev(tstpt[0],tstpt[1]);
 
       	// if test point successful, exit; otherwise reduce gamma
       	if (curval < fval)
-	        break;
-	      else
-	        gamma *= 0.5;
+          break;
+        else
+          gamma *= 0.5;
 
       } // end for l
 
@@ -135,16 +133,16 @@ int main(int argc, char* argv[]) {
     double curval;
     for (int l=1; l<=50; l++) {
 
-	    // set test point and calculate function value
-	    tstpt[0] = pt[0] - gamma*df[0];
+      // set test point and calculate function value
+      tstpt[0] = pt[0] - gamma*df[0];
       tstpt[1] = pt[1] - gamma*df[1];
-	    curval = f(tstpt[0],tstpt[1]);
+      curval = f(tstpt[0],tstpt[1]);
 
-    	// if test point successful, exit; otherwise reduce gamma
-    	if (curval < fval)
-	      break;
-	    else
-	      gamma *= 0.5;
+      // if test point successful, exit; otherwise reduce gamma
+      if (curval < fval)
+        break;
+      else
+        gamma *= 0.5;
 
     } // end for l
 
@@ -164,7 +162,8 @@ int main(int argc, char* argv[]) {
   std::chrono::duration<double> runtime = ftime - stime;
 
   // output computed minimum and corresponding point
-  std::cout << "  computed minimum = " << std::setprecision(16) << bestval.get() << std::endl;
+  //  std::cout << "  computed minimum = " << std::setprecision(16) << bestval.get() << std::endl;
+  std::cout << "  computed minimum = " << std::setprecision(16) << fval << std::endl;
   std::cout << "             point = (" << pt[0] << ", " << pt[1] << ")" << std::endl;
   std::cout << "           runtime = " << std::setprecision(16) << runtime.count() << std::endl;
 
