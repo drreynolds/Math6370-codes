@@ -162,7 +162,6 @@ int main(int argc, char* argv[]) {
   std::chrono::duration<double> runtime = ftime - stime;
 
   // output computed minimum and corresponding point
-  //  std::cout << "  computed minimum = " << std::setprecision(16) << bestval.get() << std::endl;
   std::cout << "  computed minimum = " << std::setprecision(16) << fval << std::endl;
   std::cout << "             point = (" << pt[0] << ", " << pt[1] << ")" << std::endl;
   std::cout << "           runtime = " << std::setprecision(16) << runtime.count() << std::endl;
