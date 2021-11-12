@@ -5,13 +5,12 @@
 
 
 // Inclusions 
-#include <stdlib.h>     // new, delete
-#include <math.h>       // exp(), pow()
-#include "advection.h"  // idx(), prototypes
+#include <stdlib.h>       // new, delete
+#include <math.h>         // exp(), pow()
+#include "advection.hpp"  // idx(), prototypes
 
 // Sets the initial conditions into u, v1, v2, v3
-void initialize(double* u, double* v1, double* v2, double* v3, 
-		double c, double dx, double dy, int nx, int ny) {
+void initialize(double *u_h, double *v1_h, double *v2_h, double *v3_h, double *u_d, double *v1_d, double *v2_d, double *v3_d, double c, double dx, double dy, int nx, int ny) {
 
   // declarations
   double *xspan_c, *xspan_h, *yspan_c, *yspan_h, y_c, y_h, x_c, x_h;
@@ -50,15 +49,21 @@ void initialize(double* u, double* v1, double* v2, double* v3,
             u(0,x,y) = exp(-100*((x-1/3)^2+(y-1/2)^2))
             c*u_x(0,x,y) = -200*c*(x-1/3)*exp(-100*((x-1/3)^2+(y-1/2)^2))
             c*u_y(0,x,y) = -200*c*(y-1/2)*exp(-100*((x-1/3)^2+(y-1/2)^2)) */
-      u[ idx(i,j,nx)] = exp( -100.0*( pow(x_c-1.0/3.0,2.0) + pow(y_c-0.5,2.0) ) );
-      v1[idx(i,j,nx)] = 0.0;
-      v2[idx(i,j,nx)] = -200.0*c*(x_h-1.0/3.0) *
+      u_h[ idx(i,j,nx)] = exp( -100.0*( pow(x_c-1.0/3.0,2.0) + pow(y_c-0.5,2.0) ) );
+      v1_h[idx(i,j,nx)] = 0.0;
+      v2_h[idx(i,j,nx)] = -200.0*c*(x_h-1.0/3.0) *
   	         exp( -100.0*( pow(x_h-1.0/3.0,2.0) + pow(y_c-0.5,2.0) ) );
-      v3[idx(i,j,nx)] = -200.0*c*(y_h-0.5) * 
+      v3_h[idx(i,j,nx)] = -200.0*c*(y_h-0.5) * 
    	         exp( -100.0*( pow(x_c-1.0/3.0,2.0) + pow(y_h-0.5,2.0) ) );
 
     } // for j
   } // for i
+
+  // copy initial states to device
+  cudaMemcpy( u_d, u_h, nx*ny*sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy( v1_d, v1_h, nx*ny*sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy( v2_d, v2_h, nx*ny*sizeof(double), cudaMemcpyHostToDevice);
+  cudaMemcpy( v3_d, v3_h, nx*ny*sizeof(double), cudaMemcpyHostToDevice);
 
   // delete temporary arrays
   delete[] xspan_c;

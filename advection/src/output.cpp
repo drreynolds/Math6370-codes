@@ -7,16 +7,19 @@
 // Inclusions
 #include <stdio.h>
 #include <string.h>
-#include "advection.h"
+#include "advection.hpp"
 
 
 // Writes current solution to disk
-void output(double* u, double t, int nx, int ny, int noutput) {
+void output(double *u_h, double *u_d, double t, int nx, int ny, int noutput) {
 
   // declarations
   char outname[100];
   FILE* FID;
   int i, j;
+
+  // copy device data to host
+  cudaMemcpy( u_h, u_d, nx*ny*sizeof(double), cudaMemcpyDeviceToHost);
 
   // set output file name
   // Note: we reserve the first set of digits for the MPI process (unused here)
@@ -36,7 +39,7 @@ void output(double* u, double t, int nx, int ny, int noutput) {
   // output the solution values and close the data set
   for (j=0; j<ny; j++) 
     for (i=0; i<nx; i++) 
-      fprintf(FID, "%.16e\n",u[idx(i,j,nx)]);
+      fprintf(FID, "%.16e\n",u_h[idx(i,j,nx)]);
   fclose(FID);
     
   // now output a metadata file, containing general run information

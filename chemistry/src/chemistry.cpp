@@ -101,8 +101,8 @@ int main(int argc, char* argv[]) {
 
   // output solution time
   std::cout << "   inittime = " << std::setprecision(16) << inittime.count() << std::endl;
-  std::cout << "   runtime = " << std::setprecision(16) << runtime.count() << std::endl;
-  std::cout << "  failures = " << errs.get() << std::endl;
+  std::cout << "    runtime = " << std::setprecision(16) << runtime.count() << std::endl;
+  std::cout << "   failures = " << errs.get() << std::endl;
 
   // delete temperature and solution arrays on host and device
   delete[] T_h;
