@@ -60,3 +60,4 @@ Interactive demo of the RAJA/CUDA parallelization of our 2D advection code.
 Key learning topics:
 
 * `cudaMemcpyAsync` for transfers of device solution data to host for output to disk.
+* RAJA "view"
