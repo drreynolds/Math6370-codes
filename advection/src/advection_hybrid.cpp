@@ -90,101 +90,101 @@ int main(int argc, char* argv[]) {
   std::chrono::duration<double> runtime;
 
 #pragma omp parallel default(shared)
-{
-  // determine thread number
-  int myid = omp_get_thread_num();
+  {
+    // determine thread number
+    int myid = omp_get_thread_num();
 
-  // output number of threads in the team
+    // output number of threads in the team
 #pragma omp master
-  std::cout << "Running with " << omp_get_num_threads() << " threads\n";
+    std::cout << "Running with " << omp_get_num_threads() << " threads\n";
 
-  // start time stepping
-  for (int it=0; it<nt; it++) {
+    // start time stepping
+    for (int it=0; it<nt; it++) {
 
 #pragma omp master
-    {
-    // start timer
-    stime = std::chrono::system_clock::now();
+      {
+        // start timer
+        stime = std::chrono::system_clock::now();
 
-    // update global iteration counter
-    numsteps += 1;
+        // update global iteration counter
+        numsteps += 1;
 
-    // first update v1 to get to half time step
-    RAJA::kernel<xy_kernel_policy>(RAJA::make_tuple(RAJA::RangeSegment(0, ny),
-                                                    RAJA::RangeSegment(0, nx)),
-                               [=] RAJA_DEVICE (int j, int i) {
+        // first update v1 to get to half time step
+        RAJA::kernel<xy_kernel_policy>(RAJA::make_tuple(RAJA::RangeSegment(0, ny),
+                                                        RAJA::RangeSegment(0, nx)),
+                                   [=] RAJA_DEVICE (int j, int i) {
 
-      // access relevant components of v2 and v3
-      double v2_E, v2_W, v3_N, v3_S;
-      if (i == nx-1)   v2_E = v2_d[idx(0,j,nx)];
-      else             v2_E = v2_d[idx(i+1,j,nx)];
-      v2_W = v2_d[idx(i,j,nx)];
-      if (j == ny-1)   v3_N = v3_d[idx(i,0,nx)];
-      else             v3_N = v3_d[idx(i,j+1,nx)];
-      v3_S = v3_d[idx(i,j,nx)];
+          // access relevant components of v2 and v3
+          double v2_E, v2_W, v3_N, v3_S;
+          if (i == nx-1)   v2_E = v2_d[idx(0,j,nx)];
+          else             v2_E = v2_d[idx(i+1,j,nx)];
+          v2_W = v2_d[idx(i,j,nx)];
+          if (j == ny-1)   v3_N = v3_d[idx(i,0,nx)];
+          else             v3_N = v3_d[idx(i,j+1,nx)];
+          v3_S = v3_d[idx(i,j,nx)];
 
-      // update v1
-      v1_d[idx(i,j,nx)] += c*dt/dx*(v2_E - v2_W) + c*dt/dy*(v3_N - v3_S);
-    });
+          // update v1
+          v1_d[idx(i,j,nx)] += c*dt/dx*(v2_E - v2_W) + c*dt/dy*(v3_N - v3_S);
+        });
 
-    // next update v2 & v3 to get to full time step
-    RAJA::kernel<xy_kernel_policy>(RAJA::make_tuple(RAJA::RangeSegment(0, ny),
-                                                    RAJA::RangeSegment(0, nx)),
-                               [=] RAJA_DEVICE (int j, int i) {
+        // next update v2 & v3 to get to full time step
+        RAJA::kernel<xy_kernel_policy>(RAJA::make_tuple(RAJA::RangeSegment(0, ny),
+                                                        RAJA::RangeSegment(0, nx)),
+                                   [=] RAJA_DEVICE (int j, int i) {
 
-      // access relevant components of v1
-      double v1_W, v1_E, v1_S, v1_N;
-      if (i == 0)    v1_W = v1_d[idx(nx-1,j,nx)];
-      else           v1_W = v1_d[idx(i-1,j,nx)];
-      v1_E = v1_d[idx(i,j,nx)];
-      if (j == 0)    v1_S = v1_d[idx(i,ny-1,nx)];
-      else           v1_S = v1_d[idx(i,j-1,nx)];
-      v1_N = v1_d[idx(i,j,nx)];
+          // access relevant components of v1
+          double v1_W, v1_E, v1_S, v1_N;
+          if (i == 0)    v1_W = v1_d[idx(nx-1,j,nx)];
+          else           v1_W = v1_d[idx(i-1,j,nx)];
+          v1_E = v1_d[idx(i,j,nx)];
+          if (j == 0)    v1_S = v1_d[idx(i,ny-1,nx)];
+          else           v1_S = v1_d[idx(i,j-1,nx)];
+          v1_N = v1_d[idx(i,j,nx)];
 
-      // update v2 and v3
-      v2_d[idx(i,j,nx)] += c*dt/dx*(v1_E - v1_W);
-      v3_d[idx(i,j,nx)] += c*dt/dy*(v1_N - v1_S);
-    });
+          // update v2 and v3
+          v2_d[idx(i,j,nx)] += c*dt/dx*(v1_E - v1_W);
+          v3_d[idx(i,j,nx)] += c*dt/dy*(v1_N - v1_S);
+        });
 
-    // update solution for plotting
-    RAJA::kernel<xy_kernel_policy>(RAJA::make_tuple(RAJA::RangeSegment(0, ny),
-                                                    RAJA::RangeSegment(0, nx)),
-                               [=] RAJA_DEVICE (int j, int i) {
-      u_d[idx(i,j,nx)] += dt*v1_d[idx(i,j,nx)];
-    });
+        // update solution for plotting
+        RAJA::kernel<xy_kernel_policy>(RAJA::make_tuple(RAJA::RangeSegment(0, ny),
+                                                        RAJA::RangeSegment(0, nx)),
+                                   [=] RAJA_DEVICE (int j, int i) {
+          u_d[idx(i,j,nx)] += dt*v1_d[idx(i,j,nx)];
+        });
 
-    // update runtime
-    ftime = std::chrono::system_clock::now();
-    runtime += ftime - stime;
-    }
+        // update runtime
+        ftime = std::chrono::system_clock::now();
+        runtime += ftime - stime;
+      }
 
-    // set current time
-    double t = (it+1)*dt;
+      // set current time
+      double t = (it+1)*dt;
 
-    // stop simulation if we've reached tstop
-    if (t >= tstop)  break;
+      // stop simulation if we've reached tstop
+      if (t >= tstop)  break;
 
-    // output solution periodically
-    if ( (it+1)%output_steps == 0 ) {
+      // output solution periodically
+      if ( (it+1)%output_steps == 0 ) {
 
 #pragma omp barrier
-      if (myid == 0) {
-        // copy device data to host
-        cudaMemcpy( u_h, u_d, nx*ny*sizeof(double), cudaMemcpyDeviceToHost);
-      }
+        if (myid == 0) {
+          // copy device data to host
+          cudaMemcpy( u_h, u_d, nx*ny*sizeof(double), cudaMemcpyDeviceToHost);
+        }
 #pragma omp barrier
-      if (myid == 1) {
-        std::chrono::time_point<std::chrono::system_clock> iostime =  std::chrono::system_clock::now();
-        noutput++;
-        std::cout << "writing output file " << noutput << ", step = "
-                  << it << ", t = " << t << std::endl;        
-        output(u_h, u_d, t, nx, ny, noutput);
-        std::chrono::time_point<std::chrono::system_clock> ioftime = std::chrono::system_clock::now();
-        iotime += ioftime - iostime;
+        if (myid == 1) {
+          std::chrono::time_point<std::chrono::system_clock> iostime =  std::chrono::system_clock::now();
+          noutput++;
+          std::cout << "writing output file " << noutput << ", step = "
+                    << it << ", t = " << t << std::endl;        
+          output(u_h, u_d, t, nx, ny, noutput);
+          std::chrono::time_point<std::chrono::system_clock> ioftime = std::chrono::system_clock::now();
+          iotime += ioftime - iostime;
+        }
       }
-    }
 
-  } // for it
+    } // for it
   } // omp parallel
 
   // output final solution
