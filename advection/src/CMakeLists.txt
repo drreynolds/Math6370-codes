@@ -15,5 +15,10 @@ endif ()
 
 blt_add_executable(
   NAME advection.exe
-  SOURCES advection.cpp initialize.cpp   output.cpp
+  SOURCES advection.cpp initialize.cpp output.cpp
+  DEPENDS_ON ${example_depends})
+
+blt_add_executable(
+  NAME advection_hybrid.exe
+  SOURCES advection_hybrid.cpp initialize.cpp output_hybrid.cpp
   DEPENDS_ON ${example_depends})
