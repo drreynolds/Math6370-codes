@@ -5,7 +5,13 @@ make clean
 make all
 
 # set vector length
-N=50000000
+if [ -n "$1" ]
+then
+    N=$1
+else
+    N=50000000
+fi
+echo "Running tests using N = $N"
 
 # run serial versions
 echo "  "

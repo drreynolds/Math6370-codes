@@ -7,10 +7,16 @@
 #  26 February 2015
 ###################################################################
 
-# compilers
-CXX = g++
-CC  = gcc
-F90 = gfortran
+# set compilers based on machine
+ifeq ($(HOST), asymptote)
+  CXX = g++-11
+  CC  = gcc-11
+  F90 = gfortran-11
+else
+  CXX = g++
+  CC  = gcc
+  F90 = gfortran
+endif
 
 # flags
 CXXFLAGS = -O2
@@ -26,11 +32,11 @@ all : all_cpp all_c all_f90
 
 all_cpp : matvec_row_cpp.exe matvec_col_cpp.exe \
       matvec_row_auto_cpp.exe matvec_col_auto_cpp.exe \
-      matvec_omp_cpp.exe 
+      matvec_omp_cpp.exe
 
 all_c : matvec_row_c.exe matvec_col_c.exe \
       matvec_row_auto_c.exe matvec_col_auto_c.exe \
-      matvec_omp_c.exe 
+      matvec_omp_c.exe
 
 all_f90 : matvec_row_f90.exe matvec_col_f90.exe \
       matvec_row_auto_f90.exe matvec_col_auto_f90.exe \

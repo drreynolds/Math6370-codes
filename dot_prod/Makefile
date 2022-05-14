@@ -7,12 +7,18 @@
 #  7 February 2015
 ###################################################################
 
-# compilers
-CXX = g++
-CC  = gcc
-F90 = gfortran
+# set compilers based on machine
+ifeq ($(HOST), asymptote)
+  CXX = g++-11
+  CC  = gcc-11
+  F90 = gfortran-11
+else
+  CXX = g++
+  CC  = gcc
+  F90 = gfortran
+endif
 
-# flags 
+# flags
 CXXFLAGS = -O2
 CFLAGS   = -O2
 FFLAGS   = -O2
@@ -27,15 +33,15 @@ all : all_cpp all_c all_f90
 
 all_cpp : dot_prod_cpp.exe dot_prod_auto_cpp.exe \
       dot_prod_omp_cpp.exe dot_prod_omp_simple_cpp.exe \
-      dot_prod_omp2_cpp.exe 
+      dot_prod_omp2_cpp.exe
 
 all_c : dot_prod_c.exe dot_prod_auto_c.exe \
       dot_prod_omp_c.exe dot_prod_omp_simple_c.exe \
-      dot_prod_omp2_c.exe 
+      dot_prod_omp2_c.exe
 
 all_f90 : dot_prod_f90.exe dot_prod_auto_f90.exe \
       dot_prod_omp_f90.exe dot_prod_omp_simple_f90.exe \
-      dot_prod_omp2_f90.exe 
+      dot_prod_omp2_f90.exe
 
 
 dot_prod_cpp.exe : dot_prod.cpp get_time.c

@@ -4,8 +4,14 @@
 make clean
 make all
 
-# set number of subintervals
-N=50000000
+# set number of subintervals, if not specified via the command line
+if [ -n "$1" ]
+then
+    N=$1
+else
+    N=50000000
+fi
+echo "Running tests using N = $N"
 echo "$N" > nval
 
 # run serial versions

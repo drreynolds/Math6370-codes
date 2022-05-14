@@ -1,19 +1,25 @@
-CC = gcc 
+# set compilers based on machine
+ifeq ($(HOST), asymptote)
+  CC = gcc-11
+  CPP = cpp-11
+else
+  CC = gcc
+  CPP = cpp
+endif
 CFLAGS = -O -fopenmp -lm
 LDFLAGS = -O -fopenmp -lm
-CPP = cpp
 # Uncomment the following line to use OMP2.0 features
 OMPFLAG = -DOMPVER2
 CLOCKFLAG = -DOMPCLOCK
-LIBS = 
+LIBS =
 
 .c.o:
-	${CC} ${CFLAGS}  -c $*.c 
+	${CC} ${CFLAGS}  -c $*.c
 
-SYNCOBJS =  syncbench.o delay.o getclock.o 
-SCHEDOBJS = schedbench.o delay.o getclock.o 
-ARRAYOBJS = arraybench_$(IDA).o arraydelay.o getclock.o 
-CLOCKOBJS = gtod.o 
+SYNCOBJS =  syncbench.o delay.o getclock.o
+SCHEDOBJS = schedbench.o delay.o getclock.o
+ARRAYOBJS = arraybench_$(IDA).o arraydelay.o getclock.o
+CLOCKOBJS = gtod.o
 
 all:
 	$(MAKE) IDA=1 prog
@@ -31,10 +37,10 @@ all:
 prog: arraybench_$(IDA) syncbench schedbench
 
 syncbench: $(SYNCOBJS) $(CLOCKOBJS)
-	$(CC) -o syncbench $(LDFLAGS) $(SYNCOBJS) $(CLOCKOBJS) $(LIBS) -lm 
+	$(CC) -o syncbench $(LDFLAGS) $(SYNCOBJS) $(CLOCKOBJS) $(LIBS) -lm
 
 schedbench: $(SCHEDOBJS) $(CLOCKOBJS)
-	$(CC) -o schedbench  $(LDFLAGS) $(SCHEDOBJS) $(CLOCKOBJS) $(LIBS) -lm 
+	$(CC) -o schedbench  $(LDFLAGS) $(SCHEDOBJS) $(CLOCKOBJS) $(LIBS) -lm
 
 getclock.o: $(CLOCKOBJS) getclock.c
 	$(CC) $(CFLAGS) $(CLOCKFLAG) $(CLOCKOBJS) getclock.c -c -o $@
@@ -49,9 +55,7 @@ arraybench_$(IDA).o: arraybench_$(IDA).h arraybench.c
 
 # Multiple executables due to multiple array sizes, makes exe file arraybench_*
 arraybench_$(IDA): $(ARRAYOBJS) $(CLOCKOBJS) arraybench.c
-	$(CC) $(LDFLAGS) $(ARRAYOBJS) $(CLOCKOBJS) $(LIBS) -lm -o $@ 
+	$(CC) $(LDFLAGS) $(ARRAYOBJS) $(CLOCKOBJS) $(LIBS) -lm -o $@
 
-clean: 
+clean:
 	rm *.o syncbench schedbench arraybench_*
-
-

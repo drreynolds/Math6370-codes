@@ -7,16 +7,20 @@
 #  7 February 2015
 ###################################################################
 
-# C++
-CXX = g++
+# set compilers based on machine
+ifeq ($(HOST), asymptote)
+  CXX = g++-11
+  CC  = gcc-11
+  F90 = gfortran-11
+else
+  CXX = g++
+  CC  = gcc
+  F90 = gfortran
+endif
+
+# flags
 CXXFLAGS = -O2
-
-# C
-CC = gcc
-CFLAGS = -O2
-
-# F90
-F90 = gfortran
+CFLAGS   = -O2
 FFLAGS   = -O2
 
 # parallelization

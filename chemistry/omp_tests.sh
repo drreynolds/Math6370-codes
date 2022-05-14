@@ -5,7 +5,13 @@ make clean
 make all
 
 # set number of subintervals
-N=2000
+if [ -n "$1" ]
+then
+    N=$1
+else
+    N=2000
+fi
+echo "Running tests with N = $N"
 echo "$N" > nval
 
 # run OpenMP versions with varying numbers of threads
@@ -41,4 +47,3 @@ done
 
 # reset OMP_NUM_THREADS
 export OMP_NUM_THREADS=1
-

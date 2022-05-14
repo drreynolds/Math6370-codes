@@ -2,11 +2,22 @@
 
 # build executables
 make realclean
-make serial openmp
+make all
 
 # set number of subintervals
-M=20000
-N=10000
+if [ -n "$1" ]
+then
+    M=$1
+else
+    M=20000
+fi
+if [ -n "$2" ]
+then
+    N=$2
+else
+    N=10000
+fi
+echo "Running tests with $M x $N matrices"
 echo "$M" > sizes
 echo "$N" >> sizes
 
