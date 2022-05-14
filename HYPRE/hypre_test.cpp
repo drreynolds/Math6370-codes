@@ -3,16 +3,16 @@
  -----------------------------------------------------------------
  Copyright 2017, All rights reserved
  -----------------------------------------------------------------
- Description: 
-   This example sets up (and solves) a scalar-valued Poisson-like 
-   problem, with homogeneous Dirichlet boundary conditions.  
- 
+ Description:
+   This example sets up (and solves) a scalar-valued Poisson-like
+   problem, with homogeneous Dirichlet boundary conditions.
+
    Specifically, we set up and solve the linear system
            (I + L)v = w,
-   where L is a standard 2D 5-pt Laplace stencil operator 
-   (anisotropic diffusion coefficients), and w is a smooth RHS 
-   vector.  The Laplace operator is discretized using a simple 
-   second-order centered difference approximation on a 
+   where L is a standard 2D 5-pt Laplace stencil operator
+   (anisotropic diffusion coefficients), and w is a smooth RHS
+   vector.  The Laplace operator is discretized using a simple
+   second-order centered difference approximation on a
    cell-centered finite-volume grid.
 
    This routine uses HYPRE's PFMG geometric multigrid solver.
@@ -84,7 +84,7 @@ int main(int argc, char *argv[]) {
     ierr = fscanf(FID,"npost = %i\n", &npost);
     fclose(FID);
   }
-  
+
   // Broadcast inputs to all procs
   int ibuff[] = {Nx, Ny, Px, Py, maxit, relch, rlxtype, npre, npost};
   double dbuff[] = {mu_x, mu_y, delta, xL, xR, yL, yR};
@@ -165,8 +165,8 @@ int main(int argc, char *argv[]) {
   }
 
   // determine local extents
-  int ilower[] = {pcoords[0]*Nx/Px, pcoords[1]*Ny/Py};
-  int iupper[] = {(pcoords[0]+1)*Nx/Px-1, (pcoords[1]+1)*Ny/Py-1};
+  HYPRE_Int ilower[] = {pcoords[0]*Nx/Px, pcoords[1]*Ny/Py};
+  HYPRE_Int iupper[] = {(pcoords[0]+1)*Nx/Px-1, (pcoords[1]+1)*Ny/Py-1};
 
   // set grid information
   int NxLoc = iupper[0]-ilower[0]+1;
@@ -180,10 +180,10 @@ int main(int argc, char *argv[]) {
 
   // all procs output relevant subdomain information (for debugging)
   printf(" p%i [coords = (%i,%i)]:  subdomain [%g,%g]x[%g,%g],  extents [%i,%i]x[%i,%i]\n",
-	 myid, pcoords[0], pcoords[1], xLLoc, xRLoc, yLLoc, yRLoc, 
-	 ilower[0], iupper[0], ilower[1], iupper[1]);
+	 myid, pcoords[0], pcoords[1], xLLoc, xRLoc, yLLoc, yRLoc,
+	 (int) ilower[0], (int) iupper[0], (int) ilower[1], (int) iupper[1]);
 
-  // Allocate vector memory, and set initial guess values 
+  // Allocate vector memory, and set initial guess values
   double *xx = new double[NxLoc*NyLoc];
   double *bb = new double[NxLoc*NyLoc];
   if ((xx==NULL) || (bb==NULL)) {
@@ -191,7 +191,7 @@ int main(int argc, char *argv[]) {
     MPI_Abort(comm, 1);
   }
   for (i=0; i<NxLoc*NyLoc; i++)  xx[i] = 0.0;
-  
+
   // set rhs vector
   double xloc, yloc;
   double pi=3.14159265358979323846;
@@ -216,13 +216,13 @@ int main(int argc, char *argv[]) {
 
   //   assemble the grid
   HYPRE_StructGridAssemble(grid);
-  
+
   //   set up the stencil
   HYPRE_StructStencil stencil;
   HYPRE_StructStencilCreate(2, 5, &stencil);
 
   //   set stencil entries
-  int offset[2];
+  HYPRE_Int offset[2];
   //     dependency to bottom
   offset[0] = 0;  offset[1] = -1;
   HYPRE_StructStencilSetElement(stencil, 0, offset);
@@ -238,7 +238,7 @@ int main(int argc, char *argv[]) {
   //     dependency to top
   offset[0] = 0;  offset[1] = 1;
   HYPRE_StructStencilSetElement(stencil, 4, offset);
- 
+
 
   // set up the matrix
   //   create Matrix object
@@ -250,13 +250,13 @@ int main(int argc, char *argv[]) {
 
   //   set matrix values over grid
   //     vals holds template for (I-Laplace) stencil
-  double vals[5] = {-mu_y/dy/dy, -mu_x/dx/dx, 
+  double vals[5] = {-mu_y/dy/dy, -mu_x/dx/dx,
   		     1.0 + 2.0*(mu_x/dx/dx + mu_y/dy/dy),
 		    -mu_x/dx/dx, -mu_y/dy/dy};
-  int entries[5] = {0, 1, 2, 3, 4};
+  HYPRE_Int entries[5] = {0, 1, 2, 3, 4};
 
   //    loop over domain interior, filling in entries
-  int index[2];
+  HYPRE_Int index[2];
   int ix, iy, is, ie, js, je;
   is = (ilower[0] == 0) ? 1 : 0;
   ie = (iupper[0] == Nx-1) ? NxLoc-1 : NxLoc;
@@ -267,17 +267,17 @@ int main(int argc, char *argv[]) {
     for (ix=is; ix<ie; ix++) {
       index[0] = ilower[0] + ix;
       HYPRE_StructMatrixSetValues(A, index, 5, entries, vals);
-    } 
+    }
   }
 
   //    loop over boundaries, setting Dirichlet condition
   if (ilower[1] == 0) {
     iy=0;         // bottom
     index[1] = ilower[1] + iy;
-    double Bvals[4] = {-mu_x/dx/dx, 
+    double Bvals[4] = {-mu_x/dx/dx,
                        1.0 + 2.0*mu_x/dx/dx + 3.0*mu_y/dy/dy,
                        -mu_x/dx/dx, -mu_y/dy/dy};
-    int Bentries[4] = {1, 2, 3, 4};
+    HYPRE_Int Bentries[4] = {1, 2, 3, 4};
     for (ix=0; ix<NxLoc; ix++) {
       index[0] = ilower[0] + ix;
       HYPRE_StructMatrixSetValues(A, index, 4, Bentries, Bvals);
@@ -286,10 +286,10 @@ int main(int argc, char *argv[]) {
   if (ilower[0] == 0) {
     ix=0;         // left
     index[0] = ilower[0] + ix;
-    double Bvals[4] = {-mu_y/dy/dy, 
+    double Bvals[4] = {-mu_y/dy/dy,
                        1.0 + 3.0*mu_x/dx/dx + 2.0*mu_y/dy/dy,
                        -mu_x/dx/dx, -mu_y/dy/dy};
-    int Bentries[4] = {0, 2, 3, 4};
+    HYPRE_Int Bentries[4] = {0, 2, 3, 4};
     for (iy=0; iy<NyLoc; iy++) {
       index[1] = ilower[1] + iy;
       HYPRE_StructMatrixSetValues(A, index, 4, Bentries, Bvals);
@@ -298,10 +298,10 @@ int main(int argc, char *argv[]) {
   if (iupper[0] == Nx-1) {
     ix=NxLoc-1;   // right
     index[0] = ilower[0] + ix;
-    double Bvals[4] = {-mu_y/dy/dy, -mu_x/dx/dx, 
+    double Bvals[4] = {-mu_y/dy/dy, -mu_x/dx/dx,
                        1.0 + 3.0*mu_x/dx/dx + 2.0*mu_y/dy/dy,
                        -mu_y/dy/dy};
-    int Bentries[4] = {0, 1, 2, 4};
+    HYPRE_Int Bentries[4] = {0, 1, 2, 4};
     for (iy=0; iy<NyLoc; iy++) {
       index[1] = ilower[1] + iy;
       HYPRE_StructMatrixSetValues(A, index, 4, Bentries, Bvals);
@@ -310,10 +310,10 @@ int main(int argc, char *argv[]) {
   if (iupper[1] == Ny-1) {
     iy=NyLoc-1;   // top
     index[1] = ilower[1] + iy;
-    double Bvals[4] = {-mu_y/dy/dy, -mu_x/dx/dx, 
+    double Bvals[4] = {-mu_y/dy/dy, -mu_x/dx/dx,
                        1.0 + 2.0*mu_x/dx/dx + 2.0*mu_y/dy/dy,
                        -mu_x/dx/dx};
-    int Bentries[4] = {0, 1, 2, 3};
+    HYPRE_Int Bentries[4] = {0, 1, 2, 3};
     for (ix=0; ix<NxLoc; ix++) {
       index[0] = ilower[0] + ix;
       HYPRE_StructMatrixSetValues(A, index, 4, Bentries, Bvals);
@@ -322,7 +322,7 @@ int main(int argc, char *argv[]) {
 
   //     assemble matrix
   HYPRE_StructMatrixAssemble(A);
-    
+
   // Stop initialization timer
   double ftime2 = MPI_Wtime();
 
@@ -336,11 +336,11 @@ int main(int argc, char *argv[]) {
 
   // initialize vectors
   HYPRE_StructVectorInitialize(bvec);
-  HYPRE_StructVectorInitialize(xvec);  
+  HYPRE_StructVectorInitialize(xvec);
 
-  // convert rhs, solution vectors to HYPRE format     
-  //    insert rhs vector entries into HYPRE vector b  
-  //    and sol vector guesses into HYPRE vector x     
+  // convert rhs, solution vectors to HYPRE format
+  //    insert rhs vector entries into HYPRE vector b
+  //    and sol vector guesses into HYPRE vector x
   for (iy=0; iy<NyLoc; iy++) {
     index[1] = ilower[1] + iy;
     for (ix=0; ix<NxLoc; ix++) {
@@ -382,11 +382,11 @@ int main(int argc, char *argv[]) {
   // extract solver statistics
   double finalresid;
   HYPRE_StructPFMGGetFinalRelativeResidualNorm(solver, &finalresid);
-  int its;
+  HYPRE_Int its;
   HYPRE_StructPFMGGetNumIterations(solver, &its);
   if (outproc)
     printf("   lin resid = %.1e (tol = %.1e), its = %i\n",
-	   finalresid, delta, its);
+	   finalresid, delta, (int) its);
 
   // extract solution values
   double val;
@@ -402,7 +402,7 @@ int main(int argc, char *argv[]) {
   // Stop overall timer
   double ftime1 = MPI_Wtime();
 
-  // Output runtimes 
+  // Output runtimes
   if (outproc) {
     printf("\n hypre_test runtimes:\n");
     printf("   initialization time = %g\n",ftime2-stime2);
@@ -428,4 +428,3 @@ int main(int argc, char *argv[]) {
 
   return(0);
 }
-

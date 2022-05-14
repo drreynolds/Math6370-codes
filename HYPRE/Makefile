@@ -7,7 +7,11 @@
 CXX = mpicxx -O0 -g
 
 # HYPRE installation location
-HYPREROOT  = /usr/local/hypre-2.20.0
+ifeq ($(HOST), asymptote)
+    HYPREROOT  = /opt/local/hypre-2.24.0
+else
+    HYPREROOT  = /usr/local/hypre-2.20.0
+endif
 HYPRE_INCD = -I${HYPREROOT}/include
 HYPRE_LIBD = -L${HYPREROOT}/lib
 HYPRE_LIBS = -lHYPRE
