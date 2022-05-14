@@ -37,6 +37,6 @@ clean:
 	\rm -f *.o *~
 
 realclean: clean
-	\rm -f *.exe
+	\rm -rf *.exe *.dSYM
 
 ##### End of Makefile #####
