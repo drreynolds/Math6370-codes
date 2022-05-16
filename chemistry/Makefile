@@ -7,23 +7,30 @@
 #  7 February 2015
 ###################################################################
 
-# F90
-F90 = gfortran
-MPIF90 = mpif90
-FFLAGS = -O2
+# set compilers based on machine
+ifeq ($(HOST), asymptote)
+  CXX = g++
+  CC  = gcc
+  F90 = gfortran
 
-# C++
-CXX = g++
-MPICXX = mpicxx
+  MPICXX = OMPI_CXX=g++-11 mpicxx
+  MPICC  = OMPI_CC=gcc-11 mpicc
+  MPIF90 = OMPI_FC=gfortran-11 mpif90
+else
+  CXX = g++
+  CC  = gcc
+  F90 = gfortran
+
+  MPICXX = mpicxx
+  MPICC  = mpicc
+  MPIF90 = mpif90
+endif
+
+# flags
+FFLAGS   = -O2
 CXXFLAGS = -O2
-
-# C
-CC = gcc
-MPICC = mpicc
-CFLAGS = -O2
-
-# OpenMP
-OMPFLAG = -fopenmp
+CFLAGS   = -O2
+OMPFLAG  = -fopenmp
 
 
 # makefile targets
@@ -32,7 +39,7 @@ all : cpp c f90
 
 cpp : chemistry_cpp.exe chemistry_mpi_cpp.exe \
       chemistry_mpi2_cpp.exe chemistry_hybrid_cpp.exe \
-      #chemistry_mpi3_cpp.exe 
+      #chemistry_mpi3_cpp.exe
 
 chemistry_cpp.exe : chemistry.cpp chem_solver.cpp get_time.c
 	$(CXX) $(CXXFLAGS) $^ -lm -o $@
@@ -43,16 +50,16 @@ chemistry_mpi_cpp.exe : chemistry_mpi.cpp chem_solver.cpp
 chemistry_mpi2_cpp.exe : chemistry_mpi2.cpp chem_solver.cpp
 	$(MPICXX) $(CXXFLAGS) $^ -lm -o $@
 
-chemistry_mpi3_cpp.exe : chemistry_mpi3.cpp chem_solver.cpp 
+chemistry_mpi3_cpp.exe : chemistry_mpi3.cpp chem_solver.cpp
 	$(MPICXX) $(CXXFLAGS) $^ -lm -o $@
 
-chemistry_hybrid_cpp.exe : chemistry_hybrid.cpp chem_solver.cpp 
+chemistry_hybrid_cpp.exe : chemistry_hybrid.cpp chem_solver.cpp
 	$(MPICXX) $(CXXFLAGS) $(OMPFLAG) $^ -o $@
 
 
 
 c : chemistry_c.exe chemistry_mpi_c.exe \
-    chemistry_mpi2_c.exe #chemistry_mpi3_c.exe 
+    chemistry_mpi2_c.exe #chemistry_mpi3_c.exe
 
 chemistry_c.exe : chemistry.c chem_solver.c get_time.c
 	$(CC) $(CFLAGS) $^ -lm -o $@
