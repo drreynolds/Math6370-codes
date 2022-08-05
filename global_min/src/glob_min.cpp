@@ -44,7 +44,7 @@ int main(int argc, char* argv[]) {
   std::cout << "Running global minimization with RAJA using CUDA backend:\n";
 
   // start timer
-  std::chrono::time_point<std::chrono::system_clock> stime =
+  const std::chrono::time_point<std::chrono::system_clock> stime =
     std::chrono::system_clock::now();
 
   // set subinterval widths
@@ -109,14 +109,6 @@ int main(int argc, char* argv[]) {
 
   }); // end for i
 
-  // stop timer
-  std::chrono::time_point<std::chrono::system_clock> ftime =
-    std::chrono::system_clock::now();
-  std::chrono::duration<double> runtime_dev = ftime - stime;
-
-  // start timer
-  stime = std::chrono::system_clock::now();
-
   // Re-do minimization from best initial guess on host to generate final output
   //   set mesh location
   int iy = (bestval.getLoc()-1)/nx;
@@ -165,15 +157,14 @@ int main(int argc, char* argv[]) {
   } // end for k
 
   // stop timer
-  ftime = std::chrono::system_clock::now();
-  std::chrono::duration<double> runtime_host = ftime - stime;
+  const std::chrono::time_point<std::chrono::system_clock> ftime =
+    std::chrono::system_clock::now();
+  std::chrono::duration<double> runtime = ftime - stime;
 
   // output computed minimum and corresponding point
   std::cout << "  computed minimum = " << std::setprecision(16) << fval << std::endl;
   std::cout << "             point = (" << pt[0] << ", " << pt[1] << ")" << std::endl;
-  std::cout << "    device runtime = " << std::setprecision(16) << runtime_dev.count() << std::endl;
-  std::cout << "      host runtime = " << std::setprecision(16) << runtime_host.count() << std::endl;
-  std::cout << "     total runtime = " << std::setprecision(16) << runtime_dev.count() + runtime_host.count() << std::endl; 
+  std::cout << "           runtime = " << std::setprecision(16) << runtime.count() << std::endl;
 
   return 0;
 } // end main
