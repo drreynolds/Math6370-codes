@@ -1,8 +1,8 @@
-# Example codes (RAJA/CUDA)
+# Example codes (Kokkos)
 
 ## pi
 
-Interactive demo showing RAJA/CUDA parallelization of our earlier serial code to compute pi via numerical integration,
+Interactive demo showing Kokkos parallelization of our earlier serial code to compute pi via numerical integration,
 
   pi = 4\int_{0}^{1} \frac{1}{1+x^2} dx
 
@@ -18,7 +18,7 @@ Key learning topics:
 
 ## dot_prod
 
-Interactive demo showing RAJA/CUDA parallelization of our earlier serial dot-product of two vectors.
+Interactive demo showing Kokkos parallelization of our earlier serial dot-product of two vectors.
 
 Key learning topics:
 
@@ -36,7 +36,7 @@ Key learning topics:
 
 ## global_min
 
-Interactive demo working through a RAJA/CUDA parallelization of our previous lab on performing steepest-descent minimization repeatedly using different initial conditions.
+Interactive demo working through a Kokkos parallelization of our previous lab on performing steepest-descent minimization repeatedly using different initial conditions.
 
 Key learning topics:
 
@@ -46,7 +46,7 @@ Key learning topics:
 
 ## chemistry
 
-Interactive demo of the RAJA/CUDA parallelization of our equilibrium chemical density computations.
+Interactive demo of the Kokkos parallelization of our equilibrium chemical density computations.
 
 Key learning topics:
 
@@ -55,7 +55,7 @@ Key learning topics:
 
 ## advection
 
-Interactive demo of the RAJA/CUDA parallelization of our 2D advection code.
+Interactive demo of the Kokkos parallelization of our 2D advection code.
 
 Key learning topics:
 
