@@ -9,6 +9,7 @@ Note: we use branches to focus on specific code types:
 * openmp: shared-memory parallelization via OpenMP
 * mpi: distributed-memory parallelization via MPI
 * raja: accelerator-based parallelism with RAJA (C++ only)
+* kokkos: accelerator-based parallelism with Kokkos (C++ only)
 
 [Daniel R. Reynolds](https://github.com/drreynolds)  
 [Mathematics @ SMU](https://www.smu.edu/math)
