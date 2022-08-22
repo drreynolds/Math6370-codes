@@ -9,9 +9,9 @@
 
 # set compilers based on machine
 ifeq ($(HOST), asymptote)
-  CXX = g++-11
-  CC  = gcc-11
-  F90 = gfortran-11
+  CXX = g++-12
+  CC  = gcc-12
+  F90 = gfortran-12
 else
   CXX = g++
   CC  = gcc

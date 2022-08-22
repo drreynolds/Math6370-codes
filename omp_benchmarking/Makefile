@@ -1,7 +1,7 @@
 # set compilers based on machine
 ifeq ($(HOST), asymptote)
-  CC = gcc-11
-  CPP = cpp-11
+  CC = gcc-12
+  CPP = cpp-12
 else
   CC = gcc
   CPP = cpp
