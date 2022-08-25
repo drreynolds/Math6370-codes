@@ -18,7 +18,7 @@ CFLAGS   = -O2
 FFLAGS   = -O2
 
 # makefile targets
-all : chemistry_cpp.exe chemistry_c.exe chemistry_f90.exe
+all : chemistry_cpp.exe chemistry_lambda.exe chemistry_c.exe chemistry_f90.exe
 
 chemistry_cpp.exe : chemistry.cpp chem_solver.cpp get_time.c
 	$(CXX) $(CXXFLAGS) $^ -lm -o $@
