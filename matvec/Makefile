@@ -3,8 +3,7 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 4370/6370
-#  26 February 2015
+#  Math 4370 / 6370
 ###################################################################
 
 # F90
@@ -33,7 +32,7 @@ matvec_col_cpp.exe : matvec_col.cpp get_time.c
 
 
 
-c : matvec_row_c.exe matvec_col_c.exe 
+c : matvec_row_c.exe matvec_col_c.exe
 
 matvec_row_c.exe : matvec_row.c get_time.c
 	$(CC) $(CFLAGS) $^ -lm -o $@

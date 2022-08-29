@@ -1,13 +1,11 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
 #include <stdio.h>
 #include "get_time.h"
-
 
 /* Prototypes */
 inline double f(double a) { return (4.0 / (1.0 + a*a)); }
@@ -37,7 +35,7 @@ int main(int argc, char* argv[]) {
   /* set subinterval width */
   h = 1.0 / n;
 
-  /* perform integration over n intervals */ 
+  /* perform integration over n intervals */
   pi = 0.0;
   for (i=0; i<n; i++) {
     x = h * (i + 0.5);
@@ -55,4 +53,3 @@ int main(int argc, char* argv[]) {
   printf("     runtime = %.16e\n",runtime);
 
 } /* end main */
-

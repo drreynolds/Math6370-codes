@@ -2,21 +2,19 @@
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !=================================================================
-
 
 program Global_Min
   !-----------------------------------------------------------------
-  ! Description: 
+  ! Description:
   !    Computes a global minimum to the function
   !        f(x,y) = exp(sin(50x)) + sin(60exp(y)) + sin(70sin(x))
   !               + sin(sin(80y)) - sin(10(x+y)) + (x^2+y^2)/4
-  !    We perform a local minimization algorithm (steepest descent) 
-  !    using a large number of initial iterates, taken by placing a 
-  !    relatively fine discretization over the search space.  We 
-  !    note that due to the form of the objective function, we know 
+  !    We perform a local minimization algorithm (steepest descent)
+  !    using a large number of initial iterates, taken by placing a
+  !    relatively fine discretization over the search space.  We
+  !    note that due to the form of the objective function, we know
   !    that any global minimum must reside in the box [-5,5]x[-5,5].
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -33,18 +31,18 @@ program Global_Min
   double precision :: curval, fval, gamma, bestval
 
   !======= Internals ============
-  
+
   ! set the integrand function
   f(x,y) = exp(sin(5.d1*x)) + sin(6.d1*exp(y)) + sin(7.d1*sin(x)) &
-         + sin(sin(8.d1*y)) - sin(1.d1*(x+y)) + (x**2+y**2)/4.d0
+       + sin(sin(8.d1*y)) - sin(1.d1*(x+y)) + (x**2+y**2)/4.d0
 
   ! set the jacobian functions
   fx(x,y) = exp(sin(5.d1*x))*cos(5.d1*x)*5.d1 &
-          + cos(7.d1*sin(x))*7.d1*cos(x)      &
-          - cos(1.d1*(x+y))*1.d1 + x/2.d0
+       + cos(7.d1*sin(x))*7.d1*cos(x)      &
+       - cos(1.d1*(x+y))*1.d1 + x/2.d0
   fy(x,y) = cos(6.d1*exp(y))*6.d1*exp(y)      &
-          + cos(sin(8.d1*y))*cos(8.d1*y)*8.d1 &
-          - cos(1.d1*(x+y))*1.d1 + y/2.d0
+       + cos(sin(8.d1*y))*cos(8.d1*y)*8.d1 &
+       - cos(1.d1*(x+y))*1.d1 + y/2.d0
 
 
   ! start timer
@@ -63,13 +61,13 @@ program Global_Min
      ix = i - iy*nx
      pt(1) = -5.d0 + (ix-1)*dx
      pt(2) = -5.d0 + iy*dy
-        
+
      ! get current function value
      fval = f(pt(1),pt(2))
 
      ! perform a steepest descent minimization at this point
      do k = 1,maxits
-        
+
         ! compute gradient of f at this point
         df(1) = fx(pt(1),pt(2))
         df(2) = fy(pt(1),pt(2))
@@ -87,28 +85,28 @@ program Global_Min
            ! if test point successful, exit; otherwise reduce gamma
            if (curval < fval) then
               exit
-           else 
+           else
               gamma = 0.5d0*gamma
            end if
-           
+
         end do
-        
+
         ! check for stagnation/convergence
         if (maxval(abs((pt-tstpt))) < 1.d-13)  exit
-        
+
         ! update point with current iterate
         pt = tstpt
         fval = curval
-        
+
      end do
-     
+
      ! if current value is better than best so far, update best
      if (fval < bestval) then
         bestpt = pt
         bestval = fval
         print *,' new best-guess has value ',bestval
      end if
-     
+
   end do
 
   ! stop timer
@@ -118,7 +116,7 @@ program Global_Min
   write(*,*) ' computed minimum =',bestval
   write(*,*) '            point =',bestpt(1),bestpt(2)
   write(*,*) '          runtime =',ftime-stime
-  
+
 
 end program Global_Min
 !=================================================================

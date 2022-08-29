@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 6370
-   20 January 2011 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -11,13 +10,13 @@
 #include "get_time.h"
 
 /* Prototypes */
-void chem_solver(double, double*, double*, double*, 
+void chem_solver(double, double*, double*, double*,
 		 double, double, int, int*, double*);
 
 
-/* Example routine to compute the equilibrium chemical densities at 
+/* Example routine to compute the equilibrium chemical densities at
    a number of spatial locations, given a (random) background temperature
-   field.  The chemical rate equations and solution strategy are in the 
+   field.  The chemical rate equations and solution strategy are in the
    subroutine chem_solver, which is called at every spatial location. */
 int main(int argc, char* argv[]) {
 
@@ -56,7 +55,7 @@ int main(int argc, char* argv[]) {
   /* call solver over n intervals */
   for (i=0; i<n; i++) {
     chem_solver(T[i], &(u[i]), &(v[i]), &(w[i]), lam, eps, maxit, &its, &res);
-    if (res < eps) 
+    if (res < eps)
       printf("    i = %i,  its = %i\n", i, its);
     else {
       printf("    error: i = %i,  its = %i,  res = %.2e,  u = %.2e,  v = %.2e,  w = %.2e\n", i, its, res, u[i], v[i], w[i]);
@@ -79,4 +78,3 @@ int main(int argc, char* argv[]) {
 
   return 0;
 } /* end main */
-

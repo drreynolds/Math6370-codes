@@ -1,14 +1,12 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include "get_time.h"
-
 
 /* Prototypes */
 double maxnorm(double *, int);
@@ -20,10 +18,10 @@ inline double fy(double, double);
 /* Example routine to compute a global minimum to the function
           f(x,y) = exp(sin(50x)) + sin(60exp(y)) + sin(70sin(x))
                  + sin(sin(80y)) - sin(10(x+y)) + (x^2+y^2)/4
-   We perform a local minimization algorithm (steepest descent) 
-   using a large number of initial iterates, taken by placing a 
-   relatively fine discretization over the search space.  We 
-   note that due to the form of the objective function, we know 
+   We perform a local minimization algorithm (steepest descent)
+   using a large number of initial iterates, taken by placing a
+   relatively fine discretization over the search space.  We
+   note that due to the form of the objective function, we know
    that any global minimum must reside in the box [-5,5]x[-5,5]. */
 int main(int argc, char* argv[]) {
 
@@ -39,7 +37,7 @@ int main(int argc, char* argv[]) {
   maxits = 100000000;   /* maximum iteration count */
 
   /* start timer */
-  stime = get_time(); 
+  stime = get_time();
 
   /* set subinterval widths
      Note: we know the minimum is inside the box [-5,5]x[-5,5] */
@@ -55,13 +53,13 @@ int main(int argc, char* argv[]) {
     ix = i - iy*nx;
     pt[0] = -5.0 + (ix-1)*dx;
     pt[1] = -5.0 + iy*dy;
-        
+
     /* get current function value */
     fval = f(pt[0],pt[1]);
 
     /* perform a steepest descent minimization at this point */
     for (k=1; k<=maxits; k++) {
-        
+
       /* compute gradient of f at this point */
       df[0] = fx(pt[0],pt[1]);
       df[1] = fy(pt[0],pt[1]);
@@ -78,9 +76,9 @@ int main(int argc, char* argv[]) {
 	curval = f(tstpt[0],tstpt[1]);
 
 	/* if test point successful, exit; otherwise reduce gamma */
-	if (curval < fval) 
+	if (curval < fval)
 	  break;
-	else 
+	else
 	  gamma *= 0.5;
 
       } /* end for l */
@@ -89,12 +87,12 @@ int main(int argc, char* argv[]) {
       normtest[0] = pt[0] - tstpt[0];
       normtest[1] = pt[1] - tstpt[1];
       if (maxnorm(normtest,2) < 1.0e-13)  break;
-        
+
       /* update point with current iterate */
       pt[0] = tstpt[0];
       pt[1] = tstpt[1];
       fval = curval;
-        
+
     } /* end for k */
 
     /* if current value is better than best so far, update best */
@@ -104,7 +102,7 @@ int main(int argc, char* argv[]) {
       bestval = fval;
       printf("  new best-guess has value  %.16e\n",bestval);
     }
-     
+
   } /* end for i */
 
   /* stop timer */
@@ -121,12 +119,12 @@ int main(int argc, char* argv[]) {
 
 
 /* Function to compute the max norm of an array,
-       || v ||_inf 
+   || v ||_inf
    where the array v has length n */
 double maxnorm(double *v, int n) {
   double result=0.0;
   int i;
-  for (i=0; i<n; i++)  
+  for (i=0; i<n; i++)
     result = (result > fabs(v[i])) ? result : fabs(v[i]);
   return result;
 }

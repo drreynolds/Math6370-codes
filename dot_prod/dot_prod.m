@@ -1,9 +1,8 @@
 % Daniel R. Reynolds
-% SMU, Mathematics
-% Math 4370/6370
-% 7 February 2015
+% SMU Mathematics
+% Math 4370 / 6370
 %-----------------------------------------------------------------
-% Description: 
+% Description:
 %    Computes the dot-product of two vectors.
 %=================================================================
 
@@ -31,7 +30,7 @@ stime = cputime;
 % compute dot-product
 sum = 0.0;
 for i=1:n
-   sum = sum + a(i)*b(i);
+  sum = sum + a(i)*b(i);
 end
 
 % stop timer

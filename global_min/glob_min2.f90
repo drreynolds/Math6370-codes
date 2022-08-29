@@ -2,21 +2,19 @@
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !=================================================================
-
 
 program Global_Min
   !-----------------------------------------------------------------
-  ! Description: 
+  ! Description:
   !    Computes a global minimum to the function
   !        f(x,y) = exp(sin(50x)) + sin(60exp(y)) + sin(70sin(x))
   !                + sin(sin(80y)) - sin(10(x+y)) + (x^2+y^2)/4
-  !    We start with a simple search algorithm that quickly finds 
-  !    100 suitable starting points for local minimization 
+  !    We start with a simple search algorithm that quickly finds
+  !    100 suitable starting points for local minimization
   !    algorithms (steepest descent).  Each of these starting
-  !    points are then examined thoroughly to find the nearest 
+  !    points are then examined thoroughly to find the nearest
   !    local minimum.
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -35,18 +33,18 @@ program Global_Min
   double precision :: searchpts(2,npts), searchvals(npts)
 
   !======= Internals ============
-  
+
   ! set the integrand function
   f(x,y) = exp(sin(5.d1*x)) + sin(6.d1*exp(y)) + sin(7.d1*sin(x)) &
-         + sin(sin(8.d1*y)) - sin(1.d1*(x+y)) + (x**2+y**2)/4.d0
+       + sin(sin(8.d1*y)) - sin(1.d1*(x+y)) + (x**2+y**2)/4.d0
 
   ! set the jacobian functions
   fx(x,y) = exp(sin(5.d1*x))*cos(5.d1*x)*5.d1 &
-          + cos(7.d1*sin(x))*7.d1*cos(x)      &
-          - cos(1.d1*(x+y))*1.d1 + x/2.d0
+       + cos(7.d1*sin(x))*7.d1*cos(x)      &
+       - cos(1.d1*(x+y))*1.d1 + x/2.d0
   fy(x,y) = cos(6.d1*exp(y))*6.d1*exp(y)      &
-          + cos(sin(8.d1*y))*cos(8.d1*y)*8.d1 &
-          - cos(1.d1*(x+y))*1.d1 + y/2.d0
+       + cos(sin(8.d1*y))*cos(8.d1*y)*8.d1 &
+       - cos(1.d1*(x+y))*1.d1 + y/2.d0
 
 
   ! start timer
@@ -74,22 +72,22 @@ program Global_Min
 
      ! if current value is below cutoff, add to list of points
      if (curval < cutoff) then
-        
+
         ! if list has room, just add this point
         if (np < npts-1) then
            np = np+1                ! increment counter
            searchpts(:,np) = pt     ! add point to list
            searchvals(np) = curval  ! add value at point
-           
-        ! if this is the last empty slot in the list, add point 
-        ! and set cutoff
+
+           ! if this is the last empty slot in the list, add point
+           ! and set cutoff
         else if (np == npts-1) then
            np = np+1                    ! increment counter
            searchpts(:,np) = pt         ! add point to list
            searchvals(np) = curval      ! add value at point
            cutoff = maxval(searchvals)  ! set cutoff as worst value
-           
-        ! otherwise replace an inferior entry and update cutoff
+
+           ! otherwise replace an inferior entry and update cutoff
         else
            idx = maxloc(searchvals)     ! index of worst pt in list
            searchpts(:,idx(1)) = pt     ! replace point
@@ -97,17 +95,17 @@ program Global_Min
            cutoff = maxval(searchvals)  ! update cutoff
 
         end if
-        
+
      end if
   end do
 
   print *, 'performing minimizations over best ',npts,' points'
-  ! We have our list of the best npts test points.  We now do 
-  ! local minimization (via steepest descent) around each of 
+  ! We have our list of the best npts test points.  We now do
+  ! local minimization (via steepest descent) around each of
   ! these to better refine
   bestval = 1.d12     ! initialize to very large number
   do i = 1,npts
-     
+
      ! extract the current point and its function value
      pt = searchpts(:,i)
      fval = searchvals(i)
@@ -132,12 +130,12 @@ program Global_Min
            ! if test point successful, exit; otherwise reduce gamma
            if (curval < fval) then
               exit
-           else 
+           else
               gamma = 0.5d0*gamma
            end if
 
         end do
-        
+
         ! check for stagnation/convergence
         if (maxval(abs((pt-tstpt))) < 1e-13)  exit
 
@@ -163,7 +161,7 @@ program Global_Min
   write(*,*) ' computed minimum =',bestval
   write(*,*) '            point =',bestpt(1),bestpt(2)
   write(*,*) '          runtime =',ftime-stime
-  
+
 
 end program Global_Min
 !=================================================================

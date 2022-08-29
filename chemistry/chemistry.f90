@@ -2,16 +2,15 @@
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
 ! SMU, Mathematics
-! Math 6370
-! 9 January 2009
+! Math 4370 / 6370
 !=================================================================
 
 
 program ChemicalEquilibrium
   !-----------------------------------------------------------------
-  ! Description: 
-  !    Computes the equilibrium chemical densities at a number of 
-  !    spatial locations, given a (random) background temperature 
+  ! Description:
+  !    Computes the equilibrium chemical densities at a number of
+  !    spatial locations, given a (random) background temperature
   !    field.  The chemical rate equations and solution strategy
   !    are in the subroutine chem_solver, which is called at every
   !    spatial location.
@@ -41,7 +40,7 @@ program ChemicalEquilibrium
   maxit = 1000000
   lam = 1.d-2
   eps = 1.d-10
-  
+
   ! input the number of intervals
   write(*,*) 'Enter the number of intervals (0 quits):'
   read(*,*) n
@@ -78,7 +77,7 @@ program ChemicalEquilibrium
 
   ! output solution time
   write(*,*) '     runtime =',ftime-stime
-  
+
   ! free temperature and solution arrays
   deallocate(T,u,v,w)
 

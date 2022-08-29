@@ -1,9 +1,8 @@
 % Daniel R. Reynolds
 % SMU Mathematics
-% Math 4370/6370
-% 7 February 2015
+% Math 4370 / 6370
 %-----------------------------------------------------------------
-% Description: 
+% Description:
 %    Evolves the first-order 2D wave equations in time.
 %=================================================================
 
@@ -51,26 +50,26 @@ yspan_h = linspace(dy/2,1-dy/2,ny);   % y-grid points at half indices
 % set initial condition for solution and derivatives
 for j=1:ny
 
-   % y locations
-   y_c = yspan_c(j);
-   y_h = yspan_h(j);
+  % y locations
+  y_c = yspan_c(j);
+  y_h = yspan_h(j);
 
-   for i=1:nx
+  for i=1:nx
 
-      % x locations
-      x_c = xspan_c(i);
-      x_h = xspan_h(i);
-      
-      % set initial conditions on u_x, u_y [gaussian blob]
-      %    u(0,x,y) = exp(-100*((x-1/3)^2+(y-1/2)^2))
-      %    c*u_x(0,x,y) = -200*c*(x-1/3)*exp(-100*((x-1/3)^2+(y-1/2)^2))
-      %    c*u_y(0,x,y) = -200*c*(y-1/2)*exp(-100*((x-1/3)^2+(y-1/2)^2))
-      u(i,j) = exp(-100*((x_c-1/3)^2+(y_c-1/2)^2));
-      v1(i,j) = 0;
-      v2(i,j) = -200*c*(x_h-1/3)*exp(-100*((x_h-1/3)^2+(y_c-1/2)^2));
-      v3(i,j) = -200*c*(y_h-1/2)*exp(-100*((x_c-1/3)^2+(y_h-1/2)^2));
-      
-   end 
+    % x locations
+    x_c = xspan_c(i);
+    x_h = xspan_h(i);
+
+    % set initial conditions on u_x, u_y [gaussian blob]
+    %    u(0,x,y) = exp(-100*((x-1/3)^2+(y-1/2)^2))
+    %    c*u_x(0,x,y) = -200*c*(x-1/3)*exp(-100*((x-1/3)^2+(y-1/2)^2))
+    %    c*u_y(0,x,y) = -200*c*(y-1/2)*exp(-100*((x-1/3)^2+(y-1/2)^2))
+    u(i,j) = exp(-100*((x_c-1/3)^2+(y_c-1/2)^2));
+    v1(i,j) = 0;
+    v2(i,j) = -200*c*(x_h-1/3)*exp(-100*((x_h-1/3)^2+(y_c-1/2)^2));
+    v3(i,j) = -200*c*(y_h-1/2)*exp(-100*((x_c-1/3)^2+(y_h-1/2)^2));
+
+  end
 end
 ftime = cputime;
 inittime = ftime-stime;
@@ -85,7 +84,7 @@ stime = cputime;
 save(outname,'u');
 
 
-% plot initial state 
+% plot initial state
 figure(1), surf(yspan_c,xspan_c,u)
 shading flat, view([50 44])
 axis([0, 1, 0, 1, -1, 1])
@@ -99,114 +98,114 @@ iotime = iotime+ftime-stime;
 runtime = 0;
 for it=1:nt
 
-   % start timer
-   stime = cputime;
+  % start timer
+  stime = cputime;
 
-   % set time step
-   dt = min([dx/c/50, dy/c/50]);
-   
-   % compute solutions at new times
-   for j=1:ny
-      for i=1:nx
+  % set time step
+  dt = min([dx/c/50, dy/c/50]);
 
-	 % first update v1 to get to half time step
-	 %    get relevant values for this location
-	 if (i==nx)
-	    v2_E = v2(1,j);
-	 else
-	    v2_E = v2(i+1,j);
-	 end
-	 v2_W = v2(i,j);
-	 if (j==ny) 
-	    v3_N = v3(i,1);
-	 else
-	    v3_N = v3(i,j+1);
-	 end
-	 v3_S = v3(i,j);
-	 %    update v1
-	 v1(i,j) = v1(i,j) + c*dt/dx*(v2_E - v2_W) + c*dt/dy*(v3_N - v3_S);
-	 
-      end
-   end
+  % compute solutions at new times
+  for j=1:ny
+    for i=1:nx
 
-   for j=1:ny
-      for i=1:nx
-	 % next update v2 & v3 to get to full time step
-	 %    get relevant values for this location
-	 if (i==1)
-	    v1_W = v1(nx,j);
-	 else
-	    v1_W = v1(i-1,j);
-	 end
-	 v1_E = v1(i,j);
-	 if (j==1)
-	    v1_S = v1(i,ny);
-	 else
-	    v1_S = v1(i,j-1);
-	 end
-	 v1_N = v1(i,j);
-	 % update v2 and v3
-	 v2(i,j) = v2(i,j) + c*dt/dx*(v1_E - v1_W);
-	 v3(i,j) = v3(i,j) + c*dt/dy*(v1_N - v1_S);
-      
-      end
-   end
-   
-   % update and plot solution
-   u = u + dt*v1;
+	    % first update v1 to get to half time step
+	    %    get relevant values for this location
+	    if (i==nx)
+	      v2_E = v2(1,j);
+	    else
+	      v2_E = v2(i+1,j);
+	    end
+	    v2_W = v2(i,j);
+	    if (j==ny)
+	      v3_N = v3(i,1);
+	    else
+	      v3_N = v3(i,j+1);
+	    end
+	    v3_S = v3(i,j);
+	    %    update v1
+	    v1(i,j) = v1(i,j) + c*dt/dx*(v2_E - v2_W) + c*dt/dy*(v3_N - v3_S);
 
-   % update time
-   t = t + dt;
-%   disp(sprintf(' time step %i: dt = %g, t = %g',it,dt,t));
-   ftime = cputime;
-   runtime = runtime+ftime-stime;
+    end
+  end
 
-   % stop simulation if we've reached tstop
-   if (t >= tstop) 
-      break;
-   end
-   
-   % output solution periodically
-   if (abs(t-toutput-dtoutput) <= 100*eps)
-      stime = cputime;
-      toutput = t;
-      noutput = noutput+1;
-      if (noutput < 10)
-	 outname = [ 'u_sol.000', num2str(noutput) ];
-      elseif (noutput < 100)
-	 outname = [ 'u_sol.00', num2str(noutput) ];
-      elseif (noutput < 1000)
-	 outname = [ 'u_sol.0', num2str(noutput) ];
-      else
-	 outname = [ 'u_sol.', num2str(noutput) ];
-      end
-      save(outname,'u');
-   
-      figure(1), surf(yspan_c,xspan_c,u)
-      shading flat, view([50 44])
-      axis([0, 1, 0, 1, -1, 1])
-      xlabel('x','FontSize',14), ylabel('y','FontSize',14)
-      title(sprintf('u(x,y) at t = %g,  mesh = %ix%i',t,nx,ny),'FontSize',16)
-      ftime = cputime;
-      iotime = iotime+ftime-stime;
+  for j=1:ny
+    for i=1:nx
+	    % next update v2 & v3 to get to full time step
+	    %    get relevant values for this location
+	    if (i==1)
+	      v1_W = v1(nx,j);
+	    else
+	      v1_W = v1(i-1,j);
+	    end
+	    v1_E = v1(i,j);
+	    if (j==1)
+	      v1_S = v1(i,ny);
+	    else
+	      v1_S = v1(i,j-1);
+	    end
+	    v1_N = v1(i,j);
+	    % update v2 and v3
+	    v2(i,j) = v2(i,j) + c*dt/dx*(v1_E - v1_W);
+	    v3(i,j) = v3(i,j) + c*dt/dy*(v1_N - v1_S);
 
-   end
+    end
+  end
+
+  % update and plot solution
+  u = u + dt*v1;
+
+  % update time
+  t = t + dt;
+  %   disp(sprintf(' time step %i: dt = %g, t = %g',it,dt,t));
+  ftime = cputime;
+  runtime = runtime+ftime-stime;
+
+  % stop simulation if we've reached tstop
+  if (t >= tstop)
+    break;
+  end
+
+  % output solution periodically
+  if (abs(t-toutput-dtoutput) <= 100*eps)
+    stime = cputime;
+    toutput = t;
+    noutput = noutput+1;
+    if (noutput < 10)
+	    outname = [ 'u_sol.000', num2str(noutput) ];
+    elseif (noutput < 100)
+	    outname = [ 'u_sol.00', num2str(noutput) ];
+    elseif (noutput < 1000)
+	    outname = [ 'u_sol.0', num2str(noutput) ];
+    else
+	    outname = [ 'u_sol.', num2str(noutput) ];
+    end
+    save(outname,'u');
+
+    figure(1), surf(yspan_c,xspan_c,u)
+    shading flat, view([50 44])
+    axis([0, 1, 0, 1, -1, 1])
+    xlabel('x','FontSize',14), ylabel('y','FontSize',14)
+    title(sprintf('u(x,y) at t = %g,  mesh = %ix%i',t,nx,ny),'FontSize',16)
+    ftime = cputime;
+    iotime = iotime+ftime-stime;
+
+  end
 
 end
 
 
-% output final solution 
+% output final solution
 stime = cputime;
 toutput = t;
 noutput = noutput+1;
 if (noutput < 10)
-   outname = [ 'u_sol.000', num2str(noutput) ];
+  outname = [ 'u_sol.000', num2str(noutput) ];
 elseif (noutput < 100)
-   outname = [ 'u_sol.00', num2str(noutput) ];
+  outname = [ 'u_sol.00', num2str(noutput) ];
 elseif (noutput < 1000)
-   outname = [ 'u_sol.0', num2str(noutput) ];
+  outname = [ 'u_sol.0', num2str(noutput) ];
 else
-   outname = [ 'u_sol.', num2str(noutput) ];
+  outname = [ 'u_sol.', num2str(noutput) ];
 end
 save(outname,'u');
 

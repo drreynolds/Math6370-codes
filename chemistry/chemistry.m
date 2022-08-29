@@ -1,11 +1,10 @@
 % Daniel R. Reynolds
-% SMU, Mathematics
-% Math 4370/6370
-% 7 February 2015
+% SMU Mathematics
+% Math 4370 / 6370
 %-----------------------------------------------------------------
-% Description: 
-%    Computes the equilibrium chemical densities at a number of 
-%    spatial locations, given a (random) background temperature 
+% Description:
+%    Computes the equilibrium chemical densities at a number of
+%    spatial locations, given a (random) background temperature
 %    field.  The chemical rate equations and solution strategy
 %    are in the subroutine chem_solver, which is called at every
 %    spatial location.
@@ -29,11 +28,11 @@ ftime = 0;
 maxit = 1000000;
 lam = 1.d-2;
 err = 1.d-10;
-  
+
 % input the number of intervals
 n = input('Enter the number of intervals (0 quits): ');
-if (n < 1) 
-   return
+if (n < 1)
+  return
 end
 
 % allocate temperature and solution arrays
@@ -53,14 +52,14 @@ stime = cputime;
 
 % call solver over n intervals
 for i=1:n
-   [u(i),v(i),w(i),its,res] = chem_solver(T(i),u(i),v(i),w(i),lam,err,maxit);
-   if (res < err) 
-      disp(sprintf('  i = %i,  its = %i',i,its));
-   else
-      disp(sprintf('  error: i = %i, its = %i, res = %g, u = %g, v = %g, w = %g',...
-	  res,u(i),v(i),w(i)));
-      return
-   end
+  [u(i),v(i),w(i),its,res] = chem_solver(T(i),u(i),v(i),w(i),lam,err,maxit);
+  if (res < err)
+    disp(sprintf('  i = %i,  its = %i',i,its));
+  else
+    disp(sprintf('  error: i = %i, its = %i, res = %g, u = %g, v = %g, w = %g',...
+	               res,u(i),v(i),w(i)));
+    return
+  end
 end
 
 % stop timer
@@ -70,5 +69,4 @@ ftime = cputime;
 disp(sprintf('     runtime = %g',ftime-stime));
 
 
-% end program 
-
+% end program

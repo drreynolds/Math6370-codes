@@ -1,79 +1,74 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 6370
-   14 January 2013 */
+   Math 4370 / 6370 */
 
-// Inclusions 
+// Inclusions
 #include <stdlib.h>
-#include <math.h>
+#include <cmath>
 #include <iostream>
 #include <fstream>
 #include "get_time.h"
 
 
-// Example routine to compute the product of an m*n matrix and an n-vector. 
+// Example routine to compute the product of an m*n matrix and an n-vector.
 int main(int argc, char* argv[]) {
 
-  // local variables
-  int m, n, i, j;
-  double **A, *x, *b, norm2, runtime;
-  double stime, ftime;
-  std::ofstream fptr;
-
-  // input the size of the system 
+  // input the size of the system
+  int m, n;
   std::cout << "We will multiply a m*n matrix by an n-vector\n";
   std::cout << "   enter m\n";
   std::cin >> m;
   std::cout << "   enter n\n";
   std::cin >> n;
   if ((m < 1) || (n < 1)) {
-    std::cerr << " Illegal input, m = " << m << " and n = " 
+    std::cerr << " Illegal input, m = " << m << " and n = "
 	      << n << " must both be >= 1\n";
     return 1;
   }
 
-  // allocate the matrix and vectors 
-  A = new double*[m];
+  // allocate the matrix and vectors
+  int i, j;
+  double **A = new double*[m];
   for (i=0; i<m; i++)  A[i] = new double[n];
-  x = new double[n];
-  b = new double[m];
-  
-  // initialize the matrix and vectors 
-  for (i=0; i<m; i++) 
-    for (j=0; j<n; j++) 
+  double *x = new double[n];
+  double *b = new double[m];
+
+  // initialize the matrix and vectors
+  for (i=0; i<m; i++)
+    for (j=0; j<n; j++)
       A[i][j] = 1.0/(1.0 + (i-j)*(i-j));
   for (i=0; i<m; i++)  b[i] = 0.0;
   for (j=0; j<n; j++)  x[j] = 1.0;
 
-  // start timer 
-  stime = get_time();
+  // start timer
+  double stime = get_time();
 
   // compute matrix-vector product (column-based version)
-  for (j=0; j<n; j++) 
-    for (i=0; i<m; i++) 
+  for (j=0; j<n; j++)
+    for (i=0; i<m; i++)
       b[i] += A[i][j]*x[j];
 
-  // stop timer 
-  ftime = get_time();
-  runtime = ftime - stime;
+  // stop timer
+  double ftime = get_time();
+  double runtime = ftime - stime;
 
-  // output 2-norm of product and runtime to screen 
-  norm2 = 0.0;
+  // output 2-norm of product and runtime to screen
+  double norm2 = 0.0;
   for (i=0; i<m; i++)  norm2 += b[i]*b[i];
   std::cout << "       matrix size = " << m << " x " << n << "\n";
   std::cout << " 2-norm of product = " << sqrt(norm2) << "\n";
   std::cout << "           runtime = " << runtime << "\n";
 
-  // output product to file 
+  // output product to file
+  std::ofstream fptr;
   fptr.open("b.txt", std::fstream::out);
   for (i=0; i<m; i++)  fptr << b[i] << "\n";
   fptr.close();
-  
-  // free matrix and vectors 
+
+  // free matrix and vectors
   for (i=0; i<m; i++)  delete[] A[i];
   delete[] A;
   delete[] x;
   delete[] b;
 
-} // end main 
-
+} // end main

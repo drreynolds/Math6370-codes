@@ -1,14 +1,12 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
 #include "get_time.h"
-
 
 /* Prototypes */
 double maxnorm(double *, int);
@@ -23,8 +21,8 @@ inline double fy(double, double);
           f(x,y) = exp(sin(50x)) + sin(60exp(y)) + sin(70sin(x))
                  + sin(sin(80y)) - sin(10(x+y)) + (x^2+y^2)/4
    We start with a simple search algorithm that quickly finds 100
-   suitable starting points for local minimization algorithms (steepest 
-   descent).  Each of these starting points are then examined thoroughly 
+   suitable starting points for local minimization algorithms (steepest
+   descent).  Each of these starting points are then examined thoroughly
    to find the nearest local minimum. */
 int main(int argc, char* argv[]) {
 
@@ -77,7 +75,7 @@ int main(int argc, char* argv[]) {
 	searchvals[np] = curval;            /* add value at point */
 	np++;
       }
-      /* if this is the last empty slot in the list, add point 
+      /* if this is the last empty slot in the list, add point
 	 and set cutoff */
       else if (np == npts-1) {
 	searchpts[0][np] = pt[0];           /* add point to list */
@@ -94,14 +92,14 @@ int main(int argc, char* argv[]) {
 	searchvals[idx] = curval;           /* replace value */
 	cutoff = maxval(searchvals, npts);  /* update cutoff */
       } /* end if/else if/else */
-      
+
     } /* end if curval */
 
   } /* end for i */
 
   printf("performing minimizations over best %i points\n",npts);
-  /* We have our list of the best npts test points.  We now do 
-     local minimization (via steepest descent) around each of 
+  /* We have our list of the best npts test points.  We now do
+     local minimization (via steepest descent) around each of
      these to better refine */
   bestval = 1.0e12;     /* initialize to very large number */
   for (i=0; i<npts; i++) {
@@ -113,7 +111,7 @@ int main(int argc, char* argv[]) {
 
     /* perform a steepest descent minimization at this point */
     for (k=1; k<=maxits; k++) {
-        
+
       /* compute gradient of f at this point */
       df[0] = fx(pt[0],pt[1]);
       df[1] = fy(pt[0],pt[1]);
@@ -130,9 +128,9 @@ int main(int argc, char* argv[]) {
 	curval = f(tstpt[0],tstpt[1]);
 
 	/* if test point successful, exit; otherwise reduce gamma */
-	if (curval < fval) 
+	if (curval < fval)
 	  break;
-	else 
+	else
 	  gamma *= 0.5;
 
       } /* end for l */
@@ -141,12 +139,12 @@ int main(int argc, char* argv[]) {
       normtest[0] = pt[0] - tstpt[0];
       normtest[1] = pt[1] - tstpt[1];
       if (maxnorm(normtest,2) < 1.0e-13)  break;
-        
+
       /* update point with current iterate */
       pt[0] = tstpt[0];
       pt[1] = tstpt[1];
       fval = curval;
-        
+
     } /* end for k */
 
     /* if current value is better than "best" so far, update best */
@@ -156,7 +154,7 @@ int main(int argc, char* argv[]) {
       bestval = fval;
       printf("  new best-guess has value  %.16e\n",bestval);
     }
-     
+
   } /* end for i */
 
   /* stop timer */
@@ -195,7 +193,7 @@ double maxval(double *v, int n) {
 
 
 /* Function to compute the max norm of an array,
-       || v ||_inf 
+       || v ||_inf
    where the array v has length n */
 double maxnorm(double *v, int n) {
   double result=0.0;

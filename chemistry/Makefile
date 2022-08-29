@@ -3,8 +3,7 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 6370
-#  4 January 2013
+#  Math 4370 / 6370
 ###################################################################
 
 # compilers
@@ -13,7 +12,7 @@ CC  = gcc
 F90 = gfortran
 
 # flags
-CXXFLAGS = -O2
+CXXFLAGS = -O2 -std=c++11
 CFLAGS   = -O2
 FFLAGS   = -O2
 

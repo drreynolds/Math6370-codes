@@ -3,8 +3,7 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 6370
-#  4 January 2013
+#  Math 4370 / 6370
 ###################################################################
 
 # compilers/flags

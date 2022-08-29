@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   4 January 2013 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include <stdlib.h>
@@ -57,18 +56,14 @@ double maxnorm(std::vector<double> v);
 void chem_solver(double T, double *u, double *v, double *w, double lam,
 		 double eps, int maxit, int *its, double *res) {
 
-  // declarations
-  double k1, k2, k3, k4;
-  std::vector<double> f;
-  int i;
-
   // compute chemical rate coefficients
-  k1 = exp(-5.0*T);
-  k2 = atan(5.0*(T-0.5))/3.0 + 0.5;
-  k3 = 1.0/cosh(5.0*(T-0.5));
-  k4 = tanh(5.0*(T-0.5)*(T-0.5));
+  double k1 = exp(-5.0*T);
+  double k2 = atan(5.0*(T-0.5))/3.0 + 0.5;
+  double k3 = 1.0/cosh(5.0*(T-0.5));
+  double k4 = tanh(5.0*(T-0.5)*(T-0.5));
 
   // define residual function for this Temperature (capture rate coeffs)
+  std::vector<double> f;
   auto chem_residual = [k1, k2, k3, k4] (double &u, double &v, double &w) {
     return std::vector<double> {k2*v + k1*u*(u+v+w-1.0),
                                 k1*u*(1.0-u-v-w) - (k2+k3)*v + k4*w,
@@ -80,6 +75,7 @@ void chem_solver(double T, double *u, double *v, double *w, double lam,
   *res = maxnorm(f);
 
   // perform fixed-point iteration
+  int i;
   for (i=0; i<=maxit; i++) {
     if (*res < eps)  break;
 

@@ -3,19 +3,13 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 4370/6370
+#  Math 4370 / 6370
 ###################################################################
 
 # set compilers based on machine
-ifeq ($(HOST), asymptote)
-  CXX = g++-12
-  CC  = gcc-12
-  F90 = gfortran-12
-else
-  CXX = g++
-  CC  = gcc
-  F90 = gfortran
-endif
+CXX = g++
+CC  = cc
+F90 = gfortran
 
 # flags
 CXXFLAGS = -O2

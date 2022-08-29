@@ -1,15 +1,14 @@
 ! -*- Mode: Fortran90; -*-
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
-! SMU, Mathematics
-! Math 4370/6370
-! 7 February 2015
+! SMU Mathematics
+! Math 4370 / 6370
 !=================================================================
 
 
 program DotProd
   !-----------------------------------------------------------------
-  ! Description: 
+  ! Description:
   !    Computes the dot-product of two vectors.
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -24,7 +23,7 @@ program DotProd
   double precision :: sum, stime, ftime, alloctime, inittime, runtime
 
   !======= Internals ============
-  
+
   ! get n from the command line
   call getarg(1, n_string)
 
@@ -32,7 +31,7 @@ program DotProd
   if ( n_string == '' ) then
      stop 'Error: function requires one argument (vector length)'
   endif
-  
+
   ! convert n_string to integer, and ensure it's positive
   read (n_string, *) n
   if ( n < 1 ) then

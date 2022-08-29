@@ -12,15 +12,23 @@ Example that approximates pi via numerical integration,
 
 using the midpoint rule over n equal subintervals
 
+## global_min
+
+Interactive demo that focuses on global minimization via calling the steepest-descent method repeatedly using different initial conditions.
+
+Key learning topics:
+* Steepest descent minimization
+* Calling functions
+* Standard math library
+* Control structures
+
 ## chemistry
 
 Example that computes equilibrium chemical densities at multiple spatial locations, given a random background temperature field, using a simple damped fixed-point iteration as the nonlinear solver.
 
 Key learning topics:
-* Calling external functions
+* Calling functions from other files
 * Call by reference vs call by value
-* Standard math library
-* Control structures
 
 ## advection
 
