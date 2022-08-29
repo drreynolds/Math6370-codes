@@ -40,7 +40,7 @@ Simple OpenMP example showing the key variations of the `schedule` clause.
 
 ## global_min
 
-Interactive demo working through an OpenMP parallelization of a previous "lab" that focuses on global minimization via performing steepest-descent minimization repeatedly using different initial conditions.
+Interactive demo working through an OpenMP parallelization of our global minimization example.
 
 Key learning topics:
 * `parallel` construct
