@@ -7,9 +7,7 @@ Simple example that computes the dot product of two vectors.
 ## pi
 
 Example that approximates pi via numerical integration,
-
-  pi = 4\int_{0}^{1} \frac{1}{1+x^2} dx
-
+$$\pi = 4\int_{0}^{1} \frac{1}{1+x^2} \mathrm dx$$
 using the midpoint rule over n equal subintervals
 
 ## global_min
