@@ -123,7 +123,7 @@ int main(int argc, char* argv[]) {
 double maxnorm(double *v, int n) {
   double result = 0.0;
   for (int i=0; i<n; i++)
-    result = (result > abs(v[i])) ? result : abs(v[i]);
+    result = (result > std::abs(v[i])) ? result : std::abs(v[i]);
   return result;
 }
 

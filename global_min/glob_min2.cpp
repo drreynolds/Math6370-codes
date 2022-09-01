@@ -67,27 +67,27 @@ int main(int argc, char* argv[]) {
 
       // if list has room, just add this point
       if (np < npts-1) {
-	searchpts[0][np] = pt[0];           // add point to list
-	searchpts[1][np] = pt[1];
-	searchvals[np] = curval;            // add value at point
-	np++;
+        searchpts[0][np] = pt[0];           // add point to list
+        searchpts[1][np] = pt[1];
+        searchvals[np] = curval;            // add value at point
+        np++;
       }
       // if this is the last empty slot in the list, add point
       // and set cutoff
       else if (np == npts-1) {
-	searchpts[0][np] = pt[0];           // add point to list
-	searchpts[1][np] = pt[1];
-	searchvals[np] = curval;            // add value at point
-	np++;
-	cutoff = maxval(searchvals, npts);  // set cutoff as worst value
+        searchpts[0][np] = pt[0];           // add point to list
+        searchpts[1][np] = pt[1];
+        searchvals[np] = curval;            // add value at point
+        np++;
+        cutoff = maxval(searchvals, npts);  // set cutoff as worst value
       }
       // otherwise replace an inferior entry and update cutoff
       else {
-	int idx = maxloc(searchvals, npts); // index of worst pt in list
-	searchpts[0][idx] = pt[0];          // replace point to list
-	searchpts[1][idx] = pt[1];
-	searchvals[idx] = curval;           // replace value
-	cutoff = maxval(searchvals, npts);  // update cutoff
+        int idx = maxloc(searchvals, npts); // index of worst pt in list
+        searchpts[0][idx] = pt[0];          // replace point to list
+        searchpts[1][idx] = pt[1];
+        searchvals[idx] = curval;           // replace value
+        cutoff = maxval(searchvals, npts);  // update cutoff
       } // end if/else if/else
 
     } // end if curval
