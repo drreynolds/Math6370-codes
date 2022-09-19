@@ -1,46 +1,42 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 6370
-   13 January 2013 */
+   Math 4370 / 6370 */
 
 // Inclusions 
 #include <stdlib.h>
-#include <stdio.h>
-#include <math.h>
+#include <iostream>
+#include <iomanip>
+#include <cmath>
 #include "get_time.h"
 
 
 // Example routine to perform some simple vector linear combinations. 
 int main(int argc, char* argv[]) {
 
-  // local variables
-  int n, i;
-  double *x, *y, *z, a, zmax, runtime;
-  double stime, ftime;
-
   // ensure that an argument was passed in
   if (argc < 2) {
-    printf("Error: function requires one argument (vector length)\n");
+    std::cerr << "Error: function requires one argument (vector length)\n";
     return 1;
   }
 
   // set n as the input argument, and ensure it's positive
-  n = atoi(argv[1]);
+  int n = atoi(argv[1]);
   if (n < 1) {
-    printf("Error: vector length %i must be greater than 0\n", n);
+    std::cerr << "Error: vector length " << n << " must be greater than 0\n";
     return 1;
   }
 
   // allocate the vectors 
-  x = new double[n];
-  y = new double[n];
-  z = new double[n];
+  double *x = new double[n];
+  double *y = new double[n];
+  double *z = new double[n];
 
   // start timer 
-  stime = get_time();
+  double stime = get_time();
 
   // initialize a, x and y 
-  a = -3.0;
+  double a = -3.0;
+  int i;
   for (i=0; i<n; i++) {
     x[i] = exp(2.0*(i+1)/n);
     y[i] = 1.0*(n-1)/n;
@@ -52,16 +48,16 @@ int main(int argc, char* argv[]) {
   for (i=0; i<n; i++)  y[i] = x[i]*y[i]/n;
 
   // output maximum value in z 
-  zmax = z[0];
+  double zmax = z[0];
   for (i=0; i<n; i++)  zmax = (zmax > z[i]) ? zmax : z[i];
-  printf("  max(z) = %.16e\n",zmax);
+  std::cout << "  max(z) = " << std::setprecision(16) << zmax << std::endl;
 
   // stop timer 
-  ftime = get_time();
-  runtime = ftime - stime;
+  double ftime = get_time();
+  double runtime = ftime - stime;
 
   // output total time 
-  printf(" runtime = %.16e\n",runtime);
+  std::cout << " runtime = " << std::setprecision(16) << runtime << std::endl;
 
   // free vectors 
   delete[] x;

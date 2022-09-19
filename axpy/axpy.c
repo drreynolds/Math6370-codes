@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 6370
-   20 January 2011 */
+   Math 4370 / 6370 */
 
 
 /* Inclusions */
