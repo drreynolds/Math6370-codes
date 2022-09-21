@@ -37,7 +37,7 @@ int main(int argc, char* argv[]) {
   // start OpenMP parallelism 
   double a = -3.0;
   double zmax = -1.0e300;
-  #pragma omp parallel default(shared) 
+  #pragma omp parallel default(shared)
   {
 
     // output parallelism information 
@@ -47,7 +47,7 @@ int main(int argc, char* argv[]) {
 #endif
 
     // initialize x and y 
-#pragma omp for
+    #pragma omp for
     for (int i=0; i<n; i++) {
       x[i] = exp(2.0*(i+1)/n);
       y[i] = 1.0*(n-1)/n;
@@ -55,7 +55,7 @@ int main(int argc, char* argv[]) {
 
     // perform linear combinations, accumulate local maximum
     double zmaxl = -1.0e300;
-#pragma omp for 
+    #pragma omp for 
     for (int i=0; i<n; i++) {
       z[i] = a*x[i] + y[i];
       x[i] = y[i]/a - z[i];
@@ -64,8 +64,7 @@ int main(int argc, char* argv[]) {
     }
 
     // combine maximum values for each thread to global max 
-    double zmax;
-#pragma omp critical(overall_max)
+    #pragma omp critical(overall_max)
     { zmax = (zmax > zmaxl) ? zmax : zmaxl; }
 
   } // end omp parallel 
