@@ -21,9 +21,7 @@ Key learning topics:
 ## pi
 
 Interactive demo showing OpenMP parallelization of our earlier serial code to approximate pi via numerical integration,
-
-  pi = 4\int_{0}^{1} \frac{1}{1+x^2} dx
-
+$$\pi = 4\int_{0}^{1} \frac{1}{1+x^2} dx$$
 using the midpoint rule over n equal subintervals.
 
 Key learning topics:
