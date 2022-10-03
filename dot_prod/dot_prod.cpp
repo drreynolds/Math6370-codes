@@ -1,14 +1,13 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   25 October 2021 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
-#include <chrono>
-#include <RAJA/RAJA.hpp>
+#include <Kokkos_Core.hpp>
+
 
 // Example routine to compute the dot-product of two vectors
 int main(int argc, char* argv[]) {
@@ -26,47 +25,59 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
-  // set the RAJA policies
-  using epolicy = RAJA::cuda_exec<256>;
-  using rpolicy = RAJA::cuda_reduce;
-  std::cout << "Running dot_prod with length " << n << " with RAJA using CUDA backend:\n";
+  // initialize Kokkos
+  Kokkos::initialize( argc, argv );
+  {
 
-  // allocate the vectors
-  std::chrono::time_point<std::chrono::system_clock> stime =
-    std::chrono::system_clock::now();
-  double *a, *b;
-  cudaMalloc((void**)&a, n*sizeof(double));
-  cudaMalloc((void**)&b, n*sizeof(double));
-  std::chrono::time_point<std::chrono::system_clock> ftime =
-    std::chrono::system_clock::now();
-  std::chrono::duration<double> alloctime = ftime - stime;
+  // set the Kokkos execution space, memory space, range policy, and vector view
+#if defined(USE_OPENMP)
+  typedef Kokkos::OpenMP     ExecSpace;
+  typedef Kokkos::HostSpace  MemSpace;
+  std::cout << "Running dot_prod with length " << n << " with Kokkos using OpenMP backend:\n";
+#elif defined(USE_CUDA)
+  typedef Kokkos::Cuda       ExecSpace;
+  typedef Kokkos::CudaSpace  MemSpace;
+  std::cout << "Running dot_prod with length " << n << " with Kokkos using CUDA backend:\n";
+#else
+  typedef Kokkos::Serial     ExecSpace;
+  typedef Kokkos::HostSpace  MemSpace;
+  std::cout << "Running dot_prod with length " << n << " with Kokkos using Serial backend:\n";
+#endif
+  typedef Kokkos::RangePolicy<ExecSpace>    RangePol;
+  typedef Kokkos::View<double*, MemSpace>   VecView;
 
-  // initialize the vector values
-  stime = std::chrono::system_clock::now();
-  RAJA::forall<epolicy>(RAJA::RangeSegment(0,n), [=] RAJA_DEVICE (int i) {
-    a[i] = (0.001 * (i + 1.0)) / n;
-    b[i] = (0.001 * (n - i - 1.0)) / n;
+  // Allocate the vectors as Kokkos "views"
+  Kokkos::Timer timer;
+  VecView a( "a", n );
+  VecView b( "b", n );
+  double alloctime = timer.seconds();
+
+  // initialize the vector values on device
+  timer.reset();
+  Kokkos::parallel_for( RangePol(0,n), KOKKOS_LAMBDA (int i) {
+    a(i) = (0.001 * (i + 1.0)) / n;
+    b(i) = (0.001 * (n - i - 1.0)) / n;
   });
-  ftime = std::chrono::system_clock::now();
-  std::chrono::duration<double> inittime = ftime - stime;
+  // wait for asynchronous initialization to complete, and stop initialization timer
+  Kokkos::fence();
+  double inittime = timer.seconds();
 
   // compute dot-product
-  stime = std::chrono::system_clock::now();
-  RAJA::ReduceSum<rpolicy, double> sum(0.0);
-  RAJA::forall<epolicy>(RAJA::RangeSegment(0,n), [=] RAJA_DEVICE (int i) {
-    sum += a[i]*b[i];});
-  ftime = std::chrono::system_clock::now();
-  std::chrono::duration<double> runtime = ftime - stime;
+  timer.reset();
+  double sum = 0.0;
+  Kokkos::parallel_reduce( RangePol(0,n), KOKKOS_LAMBDA (int i, double &mysum) {
+    mysum += a(i) * b(i);
+  }, sum);
+  double runtime = timer.seconds();
 
-  // output computed value and runtime
+  // output computed value and runtimes
   std::cout << "   dot-product = " << std::setprecision(16) << sum << std::endl;
-  std::cout << "    alloc time = " << alloctime.count() << std::endl;
-  std::cout << "     init time = " << inittime.count() << std::endl;
-  std::cout << "      run time = " << runtime.count() << std::endl;
+  std::cout << "    alloc time = " << alloctime << std::endl;
+  std::cout << "     init time = " << inittime << std::endl;
+  std::cout << "      run time = " << runtime << std::endl;
 
-  // delete vectors
-  cudaFree(a);
-  cudaFree(b);
+  }
+  Kokkos::finalize();   // note that the views a and b are automatically deleted here
 
   return 0;
 } // end main

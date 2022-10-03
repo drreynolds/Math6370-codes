@@ -3,18 +3,17 @@
 ## pi
 
 Interactive demo showing Kokkos parallelization of our earlier serial code to compute pi via numerical integration,
-
-  pi = 4\int_{0}^{1} \frac{1}{1+x^2} dx
-
+$$\pi = 4\int_{0}^{1} \frac{1}{1+x^2} dx$$
 using the midpoint rule over n equal subintervals
 
 Key learning topics:
 
-* `raja-template` build structure via CMake
-* RAJA execution and reduction policies
-* `RAJA::ReduceSum`` construct
-* `RAJA::forall` loop construct
-* `RAJA_DEVICE` for functions to be called on device
+* `CMake` build system, including multiple targets with preprocessor directives
+* `Kokkos::initialize`
+* Kokkos execution space and reduction policies
+* `Kokkos::Timer`
+* `Kokkos::parallel_reduce` construct
+
 
 ## dot_prod
 
@@ -22,7 +21,9 @@ Interactive demo showing Kokkos parallelization of our earlier serial dot-produc
 
 Key learning topics:
 
-* `cudaMalloc` and `cudaFree` routines for memory allocation/deallocation on the device
+* Kokkos memory space and 1D views for portable host/device array allocation/deallocation
+* `Kokkos::parallel_for` construct
+* `Kokkos::fence()` to ensure completion of asynchronous execution
 
 
 ## axpy
@@ -31,7 +32,8 @@ Simple example that computes the linear combination a*x + y, where x and y are v
 
 Key learning topics:
 
-* `RAJA::ReduceMax` reduction construct
+* Named Kokkos parallel loops (beneficial for profiling/debugging)
+* "Maximum" reduction
 
 
 ## global_min
