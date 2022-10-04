@@ -1,23 +1,19 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   29 October 2021 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
-#include <cmath>
-#include <chrono>
-#include <vector>
-#include <RAJA/RAJA.hpp>
+#include <Kokkos_Core.hpp>
 
 
 // Prototypes
-RAJA_DEVICE double maxnorm_dev(double *, int);
-RAJA_DEVICE inline double f_dev(double, double);
-RAJA_DEVICE inline double fx_dev(double, double);
-RAJA_DEVICE inline double fy_dev(double, double);
+KOKKOS_FUNCTION double maxnorm_dev(double *, int);
+KOKKOS_INLINE_FUNCTION double f_dev(double, double);
+KOKKOS_INLINE_FUNCTION double fx_dev(double, double);
+KOKKOS_INLINE_FUNCTION double fy_dev(double, double);
 double maxnorm(double *, int);
 inline double f(double, double);
 inline double fx(double, double);
@@ -35,26 +31,39 @@ inline double fy(double, double);
 int main(int argc, char* argv[]) {
 
   // set some parameters
-  int nx = 100;             // search mesh size
-  int ny = 100;             // search mesh size
+  int nx = 400;             // search mesh size
+  int ny = 400;             // search mesh size
 
-  // set the RAJA policies
-  using epolicy = RAJA::cuda_exec<256>;
-  using rpolicy = RAJA::cuda_reduce;
-  std::cout << "Running global minimization with RAJA using CUDA backend:\n";
+  // initialize Kokkos
+  Kokkos::initialize( argc, argv );
+  {
+
+  // set the Kokkos execution space and range policy
+#if defined(USE_OPENMP)
+  typedef Kokkos::OpenMP     ExecSpace;
+  std::cout << "Running global minimization with Kokkos using OpenMP backend:\n";
+#elif defined(USE_CUDA)
+  typedef Kokkos::Cuda       ExecSpace;
+  std::cout << "Running global minimization with Kokkos using CUDA backend:\n";
+#else
+  typedef Kokkos::Serial     ExecSpace;
+  std::cout << "Running global minimization with Kokkos using Serial backend:\n";
+#endif
+  typedef Kokkos::RangePolicy<ExecSpace>    RangePol;
 
   // start timer
-  const std::chrono::time_point<std::chrono::system_clock> stime =
-    std::chrono::system_clock::now();
+  Kokkos::Timer timer;
 
   // set subinterval widths
   //   Note: we know the minimum is inside the box [-5,5]x[-5,5]
-  double dx = 10.0/(nx-1);
-  double dy = 10.0/(ny-1);
+  const double dx = 10.0/(nx-1);
+  const double dy = 10.0/(ny-1);
 
   // perform steepest descent minimization over all points in the mesh
-  RAJA::ReduceMinLoc<rpolicy, double> bestval(1.0e12, -1);
-  RAJA::forall<epolicy>(RAJA::RangeSegment(0,nx*ny), [=] RAJA_DEVICE (int i) {
+  typedef Kokkos::MinLoc<double, int>::value_type value_type;
+  value_type bestval;
+  Kokkos::parallel_reduce( "IC_loop", RangePol(0,nx*ny), KOKKOS_LAMBDA
+                           (int i, value_type &mybestval) {
 
     // set mesh location
     int iy = (i-1)/nx;
@@ -105,15 +114,18 @@ int main(int argc, char* argv[]) {
     } // end for k
 
     // if current value is better than best so far, update best
-    bestval.minloc(fval, i);
+    if (fval < mybestval.val) {
+      mybestval.val = fval;
+      mybestval.loc = i;
+    }
 
-  }); // end for i
+  }, bestval); // end for i
 
   // Re-do minimization from best initial guess on host to generate final output
   //   set mesh location
-  int iy = (bestval.getLoc()-1)/nx;
-  int ix = bestval.getLoc() - iy*nx;
-  std::vector<double> pt = {-5.0 + (ix-1)*dx, -5.0 + iy*dy};
+  int iy = (bestval.loc-1)/nx;
+  int ix = bestval.loc - iy*nx;
+  double pt[] = {-5.0 + (ix-1)*dx, -5.0 + iy*dy};
 
   //   get current function value
   double fval = f(pt[0],pt[1]);
@@ -157,14 +169,15 @@ int main(int argc, char* argv[]) {
   } // end for k
 
   // stop timer
-  const std::chrono::time_point<std::chrono::system_clock> ftime =
-    std::chrono::system_clock::now();
-  std::chrono::duration<double> runtime = ftime - stime;
+  double runtime = timer.seconds();
 
   // output computed minimum and corresponding point
   std::cout << "  computed minimum = " << std::setprecision(16) << fval << std::endl;
   std::cout << "             point = (" << pt[0] << ", " << pt[1] << ")" << std::endl;
-  std::cout << "           runtime = " << std::setprecision(16) << runtime.count() << std::endl;
+  std::cout << "           runtime = " << std::setprecision(16) << runtime << std::endl;
+
+  }
+  Kokkos::finalize();   // note that the views x, y, and z are automatically deleted here
 
   return 0;
 } // end main
@@ -173,22 +186,22 @@ int main(int argc, char* argv[]) {
 /* Function to compute the max norm of an array,
        || v ||_inf
    where the array v has length n */
-RAJA_DEVICE double maxnorm_dev(double *v, int n) {
+KOKKOS_FUNCTION double maxnorm_dev(double *v, int n) {
   double result = 0.0;
   for (int i=0; i<n; i++)
-    result = (result > fabs(v[i])) ? result : fabs(v[i]);
+    result = (result > abs(v[i])) ? result : abs(v[i]);
   return result;
 }
 double maxnorm(double *v, int n) {
   double result = 0.0;
   for (int i=0; i<n; i++)
-    result = (result > fabs(v[i])) ? result : fabs(v[i]);
+    result = (result > abs(v[i])) ? result : abs(v[i]);
   return result;
 }
 
 
 // integrand function, f(x,y)
-RAJA_DEVICE inline double f_dev(double x, double y) {
+KOKKOS_INLINE_FUNCTION double f_dev(double x, double y) {
   return (exp(sin(50.0*x)) + sin(60.0*exp(y)) + sin(70.0*sin(x)) +
 	  sin(sin(80.0*y)) - sin(10.0*(x+y)) + 0.25*(x*x+y*y));
 }
@@ -199,7 +212,7 @@ inline double f(double x, double y) {
 
 
 // partial wrt x of integrand function, df/dx
-RAJA_DEVICE inline double fx_dev(double x, double y) {
+KOKKOS_INLINE_FUNCTION double fx_dev(double x, double y) {
   return (exp(sin(50.0*x))*cos(50.0*x)*50.0 +
           cos(70.0*sin(x))*70.0*cos(x) -
           cos(10.0*(x+y))*10.0 + 0.5*x);
@@ -212,7 +225,7 @@ inline double fx(double x, double y) {
 
 
 // partial wrt y of integrand function, df/dy
-RAJA_DEVICE inline double fy_dev(double x, double y) {
+KOKKOS_INLINE_FUNCTION double fy_dev(double x, double y) {
   return (cos(60.0*exp(y))*60.0*exp(y) +
           cos(sin(80.0*y))*cos(80.0*y)*80.0 -
           cos(10.0*(x+y))*10.0 + 0.5*y);
