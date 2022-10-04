@@ -4,5 +4,13 @@ project (Math6370ClassCodes)
 set(Kokkos_DIR "$ENV{Kokkos_ROOT}" CACHE STRING "Kokkos root directory")
 find_package(Kokkos REQUIRED)
 
-add_executable(chemistry.exe chemistry.cpp chem_solver.cpp)
-target_link_libraries(chemistry.exe Kokkos::kokkos)
+add_executable(chemistry.serial chemistry.cpp)
+target_link_libraries(chemistry.serial Kokkos::kokkos)
+
+add_executable(chemistry.openmp chemistry.cpp)
+target_compile_definitions(chemistry.openmp PRIVATE -DUSE_OPENMP)
+target_link_libraries(chemistry.openmp Kokkos::kokkos)
+
+add_executable(chemistry.cuda chemistry.cpp)
+target_compile_definitions(chemistry.cuda PRIVATE -DUSE_CUDA)
+target_link_libraries(chemistry.cuda Kokkos::kokkos)

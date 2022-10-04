@@ -1,20 +1,20 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   5 November 2021 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
-#include <cmath>
-#include <chrono>
-#include <RAJA/RAJA.hpp>
+#include <Kokkos_Core.hpp>
 
 
 // Prototypes
-RAJA_DEVICE void chem_solver(double, double*, double*, double*,
-		 double, double, int, int*, double*);
+KOKKOS_FUNCTION void chem_solver(double, double*, double*, double*,
+                                 double, double, int, int*, double*);
+KOKKOS_FUNCTION void chem_residual(double u, double v, double w, double k1,
+                                   double k2, double k3, double k4, double f[]);
+KOKKOS_FUNCTION double maxnorm(double *v, int n);
 
 
 /* Example routine to compute the equilibrium chemical densities at
@@ -36,109 +36,91 @@ int main(int argc, char* argv[]) {
     return 1;
   }
 
+  // initialize Kokkos
+  Kokkos::initialize( argc, argv );
+  {
+
+  // set the Kokkos execution space and range policy
+#if defined(USE_OPENMP)
+  typedef Kokkos::OpenMP     ExecSpace;
+  typedef Kokkos::HostSpace  MemSpace;
+  std::cout << "Running chemistry solver with " << n << " intervals, using Kokkos with OpenMP backend:\n";
+#elif defined(USE_CUDA)
+  typedef Kokkos::Cuda       ExecSpace;
+  typedef Kokkos::CudaSpace  MemSpace;
+  std::cout << "Running chemistry solver with " << n << " intervals, using Kokkos with CUDA backend:\n";
+#else
+  typedef Kokkos::Serial     ExecSpace;
+  typedef Kokkos::HostSpace  MemSpace;
+  std::cout << "Running chemistry solver with " << n << " intervals, using Kokkos with Serial backend:\n";
+#endif
+  typedef Kokkos::RangePolicy<ExecSpace>            RangePol;
+  typedef Kokkos::View<double*, MemSpace>           VecViewDev;
+  typedef Kokkos::View<double*, Kokkos::HostSpace>  VecViewHost;
+
   // allocate temperature and solution arrays
-  double *T_h = new double[n];
-  double *u_h = new double[n];
-  double *v_h = new double[n];
-  double *w_h = new double[n];
-  double *T_d, *u_d, *v_d, *w_d;
-  cudaMalloc((void**)&T_d, n*sizeof(double));
-  cudaMalloc((void**)&u_d, n*sizeof(double));
-  cudaMalloc((void**)&v_d, n*sizeof(double));
-  cudaMalloc((void**)&w_d, n*sizeof(double));
-
-  // set the RAJA policies
-  using epolicy = RAJA::cuda_exec<256>;
-  using rpolicy = RAJA::cuda_reduce;
-  std::cout << "Running chemistry solver with " << n << " intervals, using RAJA with CUDA backend:\n";
-
-  // start timer
-  std::chrono::time_point<std::chrono::system_clock> stime =
-    std::chrono::system_clock::now();
+  Kokkos::Timer timer;
+  VecViewDev  T_d( "T_d", n );
+  VecViewDev  u_d( "u_d", n );
+  VecViewDev  v_d( "v_d", n );
+  VecViewDev  w_d( "w_d", n );
+  VecViewHost T_h( "T_h", n );
+  VecViewHost u_h( "u_h", n );
+  VecViewHost v_h( "v_h", n );
+  VecViewHost w_h( "w_h", n );
+  double alloctime = timer.seconds();
 
   // set random temperature field, initial guesses at chemical densities on host
-  for (int i=0; i<n; i++)  T_h[i] = random() / (pow(2.0,31.0) - 1.0);
-  for (int i=0; i<n; i++)  u_h[i] = 0.35;
-  for (int i=0; i<n; i++)  v_h[i] = 0.1;
-  for (int i=0; i<n; i++)  w_h[i] = 0.5;
+  timer.reset();
+  for (int i=0; i<n; i++)  T_h(i) = random() / (pow(2.0,31.0) - 1.0);
+  for (int i=0; i<n; i++)  u_h(i) = 0.35;
+  for (int i=0; i<n; i++)  v_h(i) = 0.1;
+  for (int i=0; i<n; i++)  w_h(i) = 0.5;
 
   // transfer T, u, v, w to device
-  cudaMemcpy( T_d, T_h, n*sizeof(double), cudaMemcpyHostToDevice);
-  cudaMemcpy( u_d, u_h, n*sizeof(double), cudaMemcpyHostToDevice);
-  cudaMemcpy( v_d, v_h, n*sizeof(double), cudaMemcpyHostToDevice);
-  cudaMemcpy( w_d, w_h, n*sizeof(double), cudaMemcpyHostToDevice);
-
-  // stop initialization phase timer
-  std::chrono::time_point<std::chrono::system_clock> ftime =
-    std::chrono::system_clock::now();
-  std::chrono::duration<double> inittime = ftime - stime;
-
-  // start timer
-  stime =
-    std::chrono::system_clock::now();
+  Kokkos::deep_copy( T_d, T_h );
+  Kokkos::deep_copy( u_d, u_h );
+  Kokkos::deep_copy( v_d, v_h );
+  Kokkos::deep_copy( w_d, w_h );
+  double inittime = timer.seconds();
 
   // call solver over n intervals
-  RAJA::ReduceSum<rpolicy, int> errs(0);
-  RAJA::forall<epolicy>(RAJA::RangeSegment(0,n), [=] RAJA_DEVICE (int i) {
-    int maxit = 1000000;
-    double lam = 1.e-2;
-    double eps = 1.e-10;
+  timer.reset();
+  int errs = 0;
+  const int maxit = 1000000;
+  const double lam = 1.e-2;
+  const double eps = 1.e-10;
+  Kokkos::parallel_reduce( "solves", RangePol(0,n), KOKKOS_LAMBDA (int i, int &myerrs) {
     int its;
     double res;
     chem_solver(T_d[i], &(u_d[i]), &(v_d[i]), &(w_d[i]), lam, eps, maxit, &its, &res);
-    if (res >= eps)  errs += 1;
-  });
+    if (res >= eps)  myerrs += 1;
+  }, errs);
+
+  // wait for asynchronous calculations to complete
+  Kokkos::fence();
 
   // copy results back to host
-  cudaMemcpy( T_h, T_d, n*sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy( u_h, u_d, n*sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy( v_h, v_d, n*sizeof(double), cudaMemcpyDeviceToHost);
-  cudaMemcpy( w_h, w_d, n*sizeof(double), cudaMemcpyDeviceToHost);
-
-  // stop timer
-  ftime = std::chrono::system_clock::now();
-  std::chrono::duration<double> runtime = ftime - stime;
+  Kokkos::deep_copy( T_h, T_d );
+  Kokkos::deep_copy( u_h, u_d );
+  Kokkos::deep_copy( v_h, v_d );
+  Kokkos::deep_copy( w_h, w_d );
+  double runtime = timer.seconds();
 
   // output solution time
-  std::cout << "   inittime = " << std::setprecision(16) << inittime.count() << std::endl;
-  std::cout << "    runtime = " << std::setprecision(16) << runtime.count() << std::endl;
-  std::cout << "   failures = " << errs.get() << std::endl;
+  std::cout << "  alloctime = " << std::setprecision(16) << alloctime << std::endl;
+  std::cout << "   inittime = " << std::setprecision(16) << inittime << std::endl;
+  std::cout << "    runtime = " << std::setprecision(16) << runtime << std::endl;
+  std::cout << "   failures = " << errs << std::endl;
 
-  // delete temperature and solution arrays on host and device
-  delete[] T_h;
-  delete[] u_h;
-  delete[] v_h;
-  delete[] w_h;
-  cudaFree(T_d);
-  cudaFree(u_d);
-  cudaFree(v_d);
-  cudaFree(w_d);
+  }
+  Kokkos::finalize();   // the host/device views T, u, v, and w are automatically deleted here
 
   return 0;
+
 } // end main
 
 
-
-/* Function to compute the equilibrium residuals
-          k2*v + k1*u*(u+v+w-1)              = fu(u,v,w),
-          k1*u*(1-u-v-w) - (k2+k3)*v + k4*w  = fv(u,v,w),
-          k3*v - k4*w                        = fw(u,v,w). */
-RAJA_DEVICE void chem_residual(double u, double v, double w, double k1,
-		   double k2, double k3, double k4, double f[]) {
-  f[0] = k2*v + k1*u*(u+v+w-1.0);
-  f[1] = k1*u*(1.0-u-v-w) - (k2+k3)*v + k4*w;
-  f[2] = k3*v - k4*w;
-}
-
-/* Function to compute the max norm of an array,
-       || v ||_inf
-   where the array v has length n */
-RAJA_DEVICE double maxnorm(double *v, int n) {
-  double result=0.0;
-  for (int i=0; i<n; i++)
-    result = fmax(result, fabs(v[i]));
-  return result;
-}
 
 /* Function to compute the equilibrium chemical concentrations, given
    a background temperature field, of a simple reaction network:
@@ -182,8 +164,8 @@ RAJA_DEVICE double maxnorm(double *v, int n) {
   maxit - integer  (in), maximum allowed iterations
     its - integer* (out), # of iterations required for convergence
     res - double*  (out), final nonlinear residual (max norm)  */
-RAJA_DEVICE void chem_solver(double T, double *u, double *v, double *w, double lam,
-		 double eps, int maxit, int *its, double *res) {
+KOKKOS_FUNCTION void chem_solver(double T, double *u, double *v, double *w, double lam,
+                                 double eps, int maxit, int *its, double *res) {
 
   // declarations
   double k1, k2, k3, k4, f[3];
@@ -215,3 +197,26 @@ RAJA_DEVICE void chem_solver(double T, double *u, double *v, double *w, double l
   *its = i;
 
 } // end chem_solver
+
+
+/* Function to compute the equilibrium residuals
+          k2*v + k1*u*(u+v+w-1)              = fu(u,v,w),
+          k1*u*(1-u-v-w) - (k2+k3)*v + k4*w  = fv(u,v,w),
+          k3*v - k4*w                        = fw(u,v,w). */
+KOKKOS_FUNCTION void chem_residual(double u, double v, double w, double k1,
+                                   double k2, double k3, double k4, double f[]) {
+  f[0] = k2*v + k1*u*(u+v+w-1.0);
+  f[1] = k1*u*(1.0-u-v-w) - (k2+k3)*v + k4*w;
+  f[2] = k3*v - k4*w;
+}
+
+
+/* Function to compute the max norm of an array,
+       || v ||_inf
+   where the array v has length n */
+KOKKOS_FUNCTION double maxnorm(double *v, int n) {
+  double result=0.0;
+  for (int i=0; i<n; i++)
+    result = fmax(result, fabs(v[i]));
+  return result;
+}
