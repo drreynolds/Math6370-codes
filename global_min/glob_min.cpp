@@ -10,14 +10,50 @@
 
 
 // Prototypes
-KOKKOS_FUNCTION double maxnorm_dev(double *, int);
-KOKKOS_INLINE_FUNCTION double f_dev(double, double);
-KOKKOS_INLINE_FUNCTION double fx_dev(double, double);
-KOKKOS_INLINE_FUNCTION double fy_dev(double, double);
-double maxnorm(double *, int);
-inline double f(double, double);
-inline double fx(double, double);
-inline double fy(double, double);
+KOKKOS_FUNCTION double maxnorm(double *, int);
+KOKKOS_INLINE_FUNCTION double f(double, double);
+KOKKOS_INLINE_FUNCTION double fx(double, double);
+KOKKOS_INLINE_FUNCTION double fy(double, double);
+
+
+// Custom reducer for global minimization
+struct minimization_type {
+  double fval;
+  double pt[2];
+  KOKKOS_INLINE_FUNCTION minimization_type() { init(); }
+  KOKKOS_INLINE_FUNCTION minimization_type(const minimization_type& rhs) {
+    fval = rhs.fval;  pt[0] = rhs.pt[0];  pt[1] = rhs.pt[1];
+  }
+  KOKKOS_INLINE_FUNCTION void init() {
+    fval = 1e300;  pt[0] = 0.0;  pt[1] = 0.0;
+  }
+};
+
+template <class Space>
+struct CombineMinimum {
+ public:
+  typedef CombineMinimum reducer;
+  typedef minimization_type value_type;
+  typedef Kokkos::View<value_type*, Space, Kokkos::MemoryUnmanaged> result_view_type;
+ private:
+  value_type& value;
+ public:
+  KOKKOS_INLINE_FUNCTION CombineMinimum(value_type& value_) : value(value_) {}
+  KOKKOS_INLINE_FUNCTION void join(value_type& dest, const value_type& src) const {
+    if ( src.fval < dest.fval ) {
+      dest.fval = src.fval;  dest.pt[0] = src.pt[1];  dest.pt[1] = src.pt[1];
+    }
+  }
+  KOKKOS_INLINE_FUNCTION void join(volatile value_type& dest, const volatile value_type& src) const {
+    if ( src.fval < dest.fval ) {
+      dest.fval = src.fval;  dest.pt[0] = src.pt[1];  dest.pt[1] = src.pt[1];
+    }
+  }
+  KOKKOS_INLINE_FUNCTION void init(value_type& val) const { val.init(); }
+  KOKKOS_INLINE_FUNCTION value_type& reference() const { return value; }
+  KOKKOS_INLINE_FUNCTION result_view_type view() const { return result_view_type(&value, 1); }
+  KOKKOS_INLINE_FUNCTION bool references_scalar() const { return true; }
+};
 
 
 /* Example routine to compute a global minimum to the function
@@ -31,7 +67,7 @@ inline double fy(double, double);
 int main(int argc, char* argv[]) {
 
   // set some parameters
-  int nx = 400;             // search mesh size
+  int nx = 400;             // search mesh size (note increase)
   int ny = 400;             // search mesh size
 
   // initialize Kokkos
@@ -60,10 +96,10 @@ int main(int argc, char* argv[]) {
   const double dy = 10.0/(ny-1);
 
   // perform steepest descent minimization over all points in the mesh
-  typedef Kokkos::MinLoc<double, int>::value_type value_type;
-  value_type bestval;
+  typedef CombineMinimum<Kokkos::HostSpace> CombinedMin;
+  minimization_type bestval;
   Kokkos::parallel_reduce( "IC_loop", RangePol(0,nx*ny), KOKKOS_LAMBDA
-                           (int i, value_type &mybestval) {
+                           (int i, minimization_type& mybestval) {
 
     // set mesh location
     int iy = (i-1)/nx;
@@ -71,7 +107,7 @@ int main(int argc, char* argv[]) {
     double pt[] = {-5.0 + (ix-1)*dx, -5.0 + iy*dy};
 
     // get current function value
-    double fval = f_dev(pt[0],pt[1]);
+    double fval = f(pt[0],pt[1]);
 
     // perform a steepest descent minimization at this point
     //    int maxits = 100000000;   // maximum iteration count
@@ -79,7 +115,7 @@ int main(int argc, char* argv[]) {
     for (int k=1; k<=maxits; k++) {
 
       // compute gradient of f at this point
-      double df[] = {fx_dev(pt[0],pt[1]), fy_dev(pt[0],pt[1])};
+      double df[] = {fx(pt[0],pt[1]), fy(pt[0],pt[1])};
 
       // set the initial linesearch step size
       double gamma = 1.0/sqrt(df[0]*df[0] + df[1]*df[1]);
@@ -92,7 +128,7 @@ int main(int argc, char* argv[]) {
         // set test point and calculate function value
         tstpt[0] = pt[0] - gamma*df[0];
         tstpt[1] = pt[1] - gamma*df[1];
-        curval = f_dev(tstpt[0],tstpt[1]);
+        curval = f(tstpt[0],tstpt[1]);
 
       	// if test point successful, exit; otherwise reduce gamma
       	if (curval < fval)
@@ -104,7 +140,7 @@ int main(int argc, char* argv[]) {
 
       // check for stagnation/convergence
       double normtest[] = {pt[0] - tstpt[0], pt[1] - tstpt[1]};
-      if (maxnorm_dev(normtest,2) < 1.0e-13)  break;
+      if (maxnorm(normtest,2) < 1.0e-13)  break;
 
       // update point with current iterate
       pt[0] = tstpt[0];
@@ -114,66 +150,20 @@ int main(int argc, char* argv[]) {
     } // end for k
 
     // if current value is better than best so far, update best
-    if (fval < mybestval.val) {
-      mybestval.val = fval;
-      mybestval.loc = i;
+    if (fval < mybestval.fval) {
+      mybestval.fval = fval;
+      mybestval.pt[0] = pt[0];
+      mybestval.pt[1] = pt[1];
     }
 
-  }, bestval); // end for i
-
-  // Re-do minimization from best initial guess on host to generate final output
-  //   set mesh location
-  int iy = (bestval.loc-1)/nx;
-  int ix = bestval.loc - iy*nx;
-  double pt[] = {-5.0 + (ix-1)*dx, -5.0 + iy*dy};
-
-  //   get current function value
-  double fval = f(pt[0],pt[1]);
-
-  //   perform a steepest descent minimization at this point
-  int maxits = 100000000;   // maximum iteration count
-  for (int k=1; k<=maxits; k++) {
-
-    // compute gradient of f at this point
-    double df[] = {fx(pt[0],pt[1]), fy(pt[0],pt[1])};
-
-    // set the initial linesearch step size
-    double gamma = 1.0/sqrt(df[0]*df[0] + df[1]*df[1]);
-
-    // perform back-tracking line search for gamma
-    double tstpt[] = {0.0, 0.0};
-    double curval;
-    for (int l=1; l<=50; l++) {
-
-      // set test point and calculate function value
-      tstpt[0] = pt[0] - gamma*df[0];
-      tstpt[1] = pt[1] - gamma*df[1];
-      curval = f(tstpt[0],tstpt[1]);
-
-      // if test point successful, exit; otherwise reduce gamma
-      if (curval < fval)
-        break;
-      else
-        gamma *= 0.5;
-
-    } // end for l
-
-    // check for stagnation/convergence
-    double normtest[] = {pt[0] - tstpt[0], pt[1] - tstpt[1]};
-    if (maxnorm(normtest,2) < 1.0e-13)  break;
-
-    // update point with current iterate
-    pt[0] = tstpt[0];
-    pt[1] = tstpt[1];
-    fval = curval;
-  } // end for k
+  }, CombinedMin(bestval)); // end for i
 
   // stop timer
   double runtime = timer.seconds();
 
   // output computed minimum and corresponding point
-  std::cout << "  computed minimum = " << std::setprecision(16) << fval << std::endl;
-  std::cout << "             point = (" << pt[0] << ", " << pt[1] << ")" << std::endl;
+  std::cout << "  computed minimum = " << std::setprecision(16) << bestval.fval << std::endl;
+  std::cout << "             point = (" << bestval.pt[0] << ", " << bestval.pt[1] << ")" << std::endl;
   std::cout << "           runtime = " << std::setprecision(16) << runtime << std::endl;
 
   }
@@ -186,51 +176,28 @@ int main(int argc, char* argv[]) {
 /* Function to compute the max norm of an array,
        || v ||_inf
    where the array v has length n */
-KOKKOS_FUNCTION double maxnorm_dev(double *v, int n) {
+KOKKOS_FUNCTION double maxnorm(double *v, int n) {
   double result = 0.0;
   for (int i=0; i<n; i++)
     result = (result > abs(v[i])) ? result : abs(v[i]);
   return result;
 }
-double maxnorm(double *v, int n) {
-  double result = 0.0;
-  for (int i=0; i<n; i++)
-    result = (result > abs(v[i])) ? result : abs(v[i]);
-  return result;
-}
-
 
 // integrand function, f(x,y)
-KOKKOS_INLINE_FUNCTION double f_dev(double x, double y) {
+KOKKOS_INLINE_FUNCTION double f(double x, double y) {
   return (exp(sin(50.0*x)) + sin(60.0*exp(y)) + sin(70.0*sin(x)) +
 	  sin(sin(80.0*y)) - sin(10.0*(x+y)) + 0.25*(x*x+y*y));
 }
-inline double f(double x, double y) {
-  return (exp(sin(50.0*x)) + sin(60.0*exp(y)) + sin(70.0*sin(x)) +
-	  sin(sin(80.0*y)) - sin(10.0*(x+y)) + 0.25*(x*x+y*y));
-}
-
 
 // partial wrt x of integrand function, df/dx
-KOKKOS_INLINE_FUNCTION double fx_dev(double x, double y) {
+KOKKOS_INLINE_FUNCTION double fx(double x, double y) {
   return (exp(sin(50.0*x))*cos(50.0*x)*50.0 +
           cos(70.0*sin(x))*70.0*cos(x) -
           cos(10.0*(x+y))*10.0 + 0.5*x);
 }
-inline double fx(double x, double y) {
-  return (exp(sin(50.0*x))*cos(50.0*x)*50.0 +
-          cos(70.0*sin(x))*70.0*cos(x) -
-          cos(10.0*(x+y))*10.0 + 0.5*x);
-}
-
 
 // partial wrt y of integrand function, df/dy
-KOKKOS_INLINE_FUNCTION double fy_dev(double x, double y) {
-  return (cos(60.0*exp(y))*60.0*exp(y) +
-          cos(sin(80.0*y))*cos(80.0*y)*80.0 -
-          cos(10.0*(x+y))*10.0 + 0.5*y);
-}
-inline double fy(double x, double y) {
+KOKKOS_INLINE_FUNCTION double fy(double x, double y) {
   return (cos(60.0*exp(y))*60.0*exp(y) +
           cos(sin(80.0*y))*cos(80.0*y)*80.0 -
           cos(10.0*(x+y))*10.0 + 0.5*y);
