@@ -42,8 +42,8 @@ Interactive demo working through a Kokkos parallelization of our previous lab on
 
 Key learning topics:
 
-* `RAJA::ReduceMinLoc` reduction construct -- determine "best" initial condition index
-* then repeat computation once on host to determine `pt` location for global minimum
+* Definition of external functions that are callable from either CPU or GPU code.
+* Custom reducer for `Kokkos::parallel_reduce` -- allows us to identify (x,y) leading to global minimum on GPU, with result automatically transferred to CPU.
 
 
 ## chemistry
