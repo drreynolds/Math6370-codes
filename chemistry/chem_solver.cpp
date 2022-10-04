@@ -105,6 +105,6 @@ void chem_residual(double u, double v, double w, double k1,
 double maxnorm(double *v, int n) {
   double result=0.0;
   for (int i=0; i<n; i++)
-    result = (result > abs(v[i])) ? result : abs(v[i]);
+    result = (result > std::abs(v[i])) ? result : std::abs(v[i]);
   return result;
 }
