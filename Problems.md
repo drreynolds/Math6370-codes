@@ -2,7 +2,7 @@
 
 ## pi
 
-Interactive demo showing Kokkos parallelization of our earlier serial code to compute pi via numerical integration,
+Demo showing Kokkos parallelization of our earlier serial code to compute pi via numerical integration,
 $$\pi = 4\int_{0}^{1} \frac{1}{1+x^2} dx$$
 using the midpoint rule over n equal subintervals
 
@@ -17,7 +17,7 @@ Key learning topics:
 
 ## dot_prod
 
-Interactive demo showing Kokkos parallelization of our earlier serial dot-product of two vectors.
+Demo showing Kokkos parallelization of our earlier serial dot-product of two vectors.
 
 Key learning topics:
 
@@ -38,7 +38,7 @@ Key learning topics:
 
 ## global_min
 
-Interactive demo working through a Kokkos parallelization of our previous lab on performing steepest-descent minimization repeatedly using different initial conditions.
+Demo working through a Kokkos parallelization of our previous lab on performing steepest-descent minimization repeatedly using different initial conditions.
 
 Key learning topics:
 
@@ -48,16 +48,17 @@ Key learning topics:
 
 ## chemistry
 
-Interactive demo of the Kokkos parallelization of our equilibrium chemical density computations.
+Demo of the Kokkos parallelization of our equilibrium chemical density computations.
 
 Key learning topics:
 
-* `cudaMemcpy` for host->device transfer of temperature array, and then device->host transfer of chemical equilibrium results.
+* Kokkos memory spaces for allocation of device/host data
+* `Kokkos::deep_copy` for transfer of temperature and solution arrays.
 
 
 ## advection
 
-Interactive demo of the Kokkos parallelization of our 2D advection code.
+Demo of the Kokkos parallelization of our 2D advection code.
 
 Key learning topics:
 
