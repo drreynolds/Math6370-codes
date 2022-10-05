@@ -29,7 +29,7 @@ filetype = '.png'
 
 ###
 def load_info():
-    """Returns the mesh size, parallelism information, and total 
+    """Returns the mesh size, parallelism information, and total
        number of output times from the input file 'u_sol.txt':
           nx,ny,px,py,nt = load_info() """
     data = np.loadtxt("u_sol.txt", dtype=int)
@@ -50,7 +50,7 @@ def load_snapshot(tstep):
         return
 
     # allocate data for snapshot
-    u = np.zeros((nx,ny), dtype=double)
+    u = np.zeros((nx,ny), dtype=float)
 
     # determine local subdomain sizes
     nloc = nx//px   # // is like /, but enforces "flooring" of the result
@@ -65,7 +65,7 @@ def load_snapshot(tstep):
         outfile = 'u_sol.' + sproc + '.' + stime
 
         # load file, split into relevant parts
-        data = np.loadtxt(outfile, dtype=double)
+        data = np.loadtxt(outfile, dtype=float)
         nxloc = int(data[0])
         nyloc = int(data[1])
         pxloc = int(data[2])
@@ -80,7 +80,7 @@ def load_snapshot(tstep):
         jstart = pyloc*mloc
         jend   = jstart+nyloc
         u[istart:iend, jstart:jend] = uloc
-    
+
     return [t,u]
 
 ###
@@ -102,7 +102,7 @@ def plot_snapshot(tstep):
     # set x and y meshgrid objects
     xspan = np.linspace(0.0, 1.0, nx)
     yspan = np.linspace(0.0, 1.0, ny)
-    X,Y = np.meshgrid(xspan,yspan)
+    X,Y = np.meshgrid(yspan,xspan)
 
     # plot current solution as a surface, and save to disk
     fig = plt.figure()

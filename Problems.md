@@ -62,5 +62,7 @@ Demo of the Kokkos parallelization of our 2D advection code.
 
 Key learning topics:
 
-* `cudaMemcpyAsync` for transfers of device solution data to host for output to disk.
-* RAJA "view"
+* Kokkos 2D views
+* Kokkos `HostMirror` and `create_mirror_view` for mirroring multi-dimensional host/device memory
+* Host-based allocation, accelerator-based computation, host-based output
+* `Kokkos::MDRangePolicy` for parallelizing nested loops

@@ -1,16 +1,15 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   12 November 2021 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include "advection.hpp"
 
 // Writes current solution to disk
-void output(double *u_h, double *u_d, double t, int nx, int ny, int noutput) {
+void output(Vec2DHost u_h, Vec2D u_d, double t, int nx, int ny, int noutput) {
 
   // copy device data to host
-  cudaMemcpy( u_h, u_d, nx*ny*sizeof(double), cudaMemcpyDeviceToHost);
+  Kokkos::deep_copy( u_h, u_d );
 
   // set output file name
   // Note: we reserve the first set of digits for the MPI process (unused here)
@@ -31,7 +30,7 @@ void output(double *u_h, double *u_d, double t, int nx, int ny, int noutput) {
   // output the solution values and close the data set
   for (int j=0; j<ny; j++)
     for (int i=0; i<nx; i++)
-      fprintf(FID, "%.16e\n",u_h[idx(i,j,nx)]);
+      fprintf(FID, "%.16e\n",u_h(i,j));
   fclose(FID);
 
   // now output a metadata file, containing general run information
