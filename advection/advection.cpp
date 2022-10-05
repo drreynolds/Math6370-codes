@@ -80,7 +80,7 @@ int main(int argc, char* argv[]) {
 
   // start time stepping
   int it;
-  double runtime;
+  double runtime = 0.0;
   for (it=0; it<nt; it++) {
 
     // start timer
