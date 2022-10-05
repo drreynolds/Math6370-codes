@@ -14,14 +14,3 @@ target_link_libraries(advection.openmp Kokkos::kokkos)
 add_executable(advection.cuda advection.cpp initialize.cpp output.cpp)
 target_compile_definitions(advection.cuda PRIVATE -DUSE_CUDA)
 target_link_libraries(advection.cuda Kokkos::kokkos)
-
-# add_executable(advection_hybrid.serial advection_hybrid.cpp initialize.cpp output_hybrid.cpp)
-# target_link_libraries(advection_hybrid.serial Kokkos::kokkos)
-
-# add_executable(advection_hybrid.openmp advection_hybrid.cpp initialize.cpp output_hybrid.cpp)
-# target_compile_definitions(advection_hybrid.openmp PRIVATE -DUSE_OPENMP)
-# target_link_libraries(advection_hybrid.openmp Kokkos::kokkos)
-
-# add_executable(advection_hybrid.cuda advection_hybrid.cpp initialize.cpp output_hybrid.cpp)
-# target_compile_definitions(advection_hybrid.cuda PRIVATE -DUSE_CUDA)
-# target_link_libraries(advection_hybrid.cuda Kokkos::kokkos)
