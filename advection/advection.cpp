@@ -121,7 +121,7 @@ int main(int argc, char* argv[]) {
     });
     Kokkos::fence();
 
-    // update time
+    // update internal time and runtime
     t += dt;
     runtime += timer.seconds();
 

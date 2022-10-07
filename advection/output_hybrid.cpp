@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   12 November 2021 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include "advection.hpp"
