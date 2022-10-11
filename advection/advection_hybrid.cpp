@@ -182,11 +182,11 @@ int main(int argc, char* argv[]) {
 
   // output final solution
   timer.reset();
-  toutput = t;
+  toutput = t0 + nt*dt;
   noutput++;
   std::cout << "writing output file " << noutput << ", step = "
-            << it << ", t = " << t << std::endl;
-  output(u_h, u_d, t, nx, ny, noutput);
+            << nt << ", t = " << toutput << std::endl;
+  output(u_h, u_d, toutput, nx, ny, noutput);
   iotime += timer.seconds();
 
   // stop overall run timer

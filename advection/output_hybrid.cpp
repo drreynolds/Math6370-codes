@@ -6,7 +6,7 @@
 #include "advection.hpp"
 
 // Writes current solution to disk
-void output(double *u_h, double *u_d, double t, int nx, int ny, int noutput) {
+void output(Vec2DHost u_h, Vec2D u_d, double t, int nx, int ny, int noutput) {
 
   // set output file name
   // Note: we reserve the first set of digits for the MPI process (unused here)
@@ -27,7 +27,7 @@ void output(double *u_h, double *u_d, double t, int nx, int ny, int noutput) {
   // output the solution values and close the data set
   for (int j=0; j<ny; j++)
     for (int i=0; i<nx; i++)
-      fprintf(FID, "%.16e\n",u_h[idx(i,j,nx)]);
+      fprintf(FID, "%.16e\n",u_h(i,j));
   fclose(FID);
 
   // now output a metadata file, containing general run information
