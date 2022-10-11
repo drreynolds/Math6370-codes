@@ -48,10 +48,10 @@ int main(int argc, char* argv[]) {
 
   // allocate arrays
   timer.reset();
-  Vec2D  u_d(  "u_d",  nx, ny );
-  Vec2D  v1_d( "v1_d", nx, ny );
-  Vec2D  v2_d( "v2_d", nx, ny );
-  Vec2D  v3_d( "v3_d", nx, ny );
+  Vec2D u_d(  "u_d",  nx, ny );
+  Vec2D v1_d( "v1_d", nx, ny );
+  Vec2D v2_d( "v2_d", nx, ny );
+  Vec2D v3_d( "v3_d", nx, ny );
   Vec2DHost u_h  = Kokkos::create_mirror_view(u_d);
   Vec2DHost v1_h = Kokkos::create_mirror_view(v1_d);
   Vec2DHost v2_h = Kokkos::create_mirror_view(v2_d);
@@ -159,11 +159,12 @@ int main(int argc, char* argv[]) {
       // output solution periodically
       if ( t - (toutput + dtoutput) > -1.e-14 ) {
 
-        // one thread copies device data to host
+        // wait for both threads to catch up, and then copy device data to host
+#pragma omp barrier
 #pragma omp single
         Kokkos::deep_copy( u_h, u_d );
 
-        // second thread performs output
+        // second thread performs output, while first thread continues work
         if (myid == 1) {
           Kokkos::Timer output_timer;
           toutput = t;

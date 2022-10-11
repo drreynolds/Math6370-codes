@@ -49,10 +49,10 @@ int main(int argc, char* argv[]) {
 
   // allocate arrays
   timer.reset();
-  Vec2D  u_d(  "u_d",  nx, ny );
-  Vec2D  v1_d( "v1_d", nx, ny );
-  Vec2D  v2_d( "v2_d", nx, ny );
-  Vec2D  v3_d( "v3_d", nx, ny );
+  Vec2D u_d(  "u_d",  nx, ny );
+  Vec2D v1_d( "v1_d", nx, ny );
+  Vec2D v2_d( "v2_d", nx, ny );
+  Vec2D v3_d( "v3_d", nx, ny );
   Vec2DHost u_h  = Kokkos::create_mirror_view(u_d);
   Vec2DHost v1_h = Kokkos::create_mirror_view(v1_d);
   Vec2DHost v2_h = Kokkos::create_mirror_view(v2_d);
