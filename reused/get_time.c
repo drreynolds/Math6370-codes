@@ -1,14 +1,13 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   1 February 2017 */
+   Math 4370 / 6370 */
 
 
 /* Inclusions */
 #include "get_time.h"
 
 /* Function to get the current "time" and cast to double.
-   The raw returned value is unusable on its own; the utility 
+   The raw returned value is unusable on its own; the utility
    in this function comes when used as a 'stopwatch':
       double stime = get_time();
       ...

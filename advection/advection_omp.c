@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 
 /* Inclusions */
@@ -55,7 +54,7 @@ int main(int argc, char* argv[]) {
   v1 = malloc(nx*ny * sizeof(double));
   v2 = malloc(nx*ny * sizeof(double));
   v3 = malloc(nx*ny * sizeof(double));
-  
+
   /* set grid spacing */
   dx = 1.0/nx;
   dy = 1.0/ny;
@@ -95,51 +94,51 @@ int main(int argc, char* argv[]) {
 #pragma omp for collapse(2)
       for (j=0; j<ny; j++) {
 	for (i=0; i<nx; i++) {
-	  
+
           /* access relevant components of v2 and v3 */
 	  if (i == nx-1)   v2_E = v2[idx(0,j,nx)];
 	  else             v2_E = v2[idx(i+1,j,nx)];
-	  
+
 	  v2_W = v2[idx(i,j,nx)];
-	  
+
 	  if (j == ny-1)   v3_N = v3[idx(i,0,nx)];
 	  else             v3_N = v3[idx(i,j+1,nx)];
-	  
+
 	  v3_S = v3[idx(i,j,nx)];
-	  
+
 	  /* update v1 */
 	  v1[idx(i,j,nx)] += c*dt/dx*(v2_E - v2_W) + c*dt/dy*(v3_N - v3_S);
-	  
+
 	} /* for j */
       } /* for i (also end omp for) */
-      
+
       /* next update v2 & v3 to get to full time step
 	 get relevant values for this location */
 #pragma omp for collapse(2)
       for (j=0; j<ny; j++) {
 	for (i=0; i<nx; i++) {
-	  
+
           /* access relevant components of v1 */
 	  if (i == 0)    v1_W = v1[idx(nx-1,j,nx)];
 	  else           v1_W = v1[idx(i-1,j,nx)];
-	  
+
 	  v1_E = v1[idx(i,j,nx)];
-	  
+
 	  if (j == 0)    v1_S = v1[idx(i,ny-1,nx)];
 	  else           v1_S = v1[idx(i,j-1,nx)];
-	  
+
 	  v1_N = v1[idx(i,j,nx)];
-	  
+
 	  /* update v2 and v3 */
 	  v2[idx(i,j,nx)] += c*dt/dx*(v1_E - v1_W);
 	  v3[idx(i,j,nx)] += c*dt/dy*(v1_N - v1_S);
-	  
+
 	} /* for j */
       } /* for i (also end omp for) */
-      
+
       /* update solution */
 #pragma omp for collapse(2)
-      for (j=0; j<ny; j++) 
+      for (j=0; j<ny; j++)
 	for (i=0; i<nx; i++) {
 	  u[idx(i,j,nx)] += dt*v1[idx(i,j,nx)];
         } /* for i (also end omp for) */
@@ -152,7 +151,7 @@ int main(int argc, char* argv[]) {
         ftime = get_time();
         runtime += ftime-stime;
       }
-      
+
       /* stop simulation if we've reached tstop */
       if (t >= tstop)  break;
 
@@ -170,9 +169,9 @@ int main(int argc, char* argv[]) {
         }
       }
     } /* for it */
-  
+
   } /* end omp parallel region */
-  
+
   /* output final solution */
   stime = get_time();
   toutput = t;
@@ -195,4 +194,3 @@ int main(int argc, char* argv[]) {
 
   return 0;
 } /* end main */
-

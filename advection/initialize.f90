@@ -1,13 +1,12 @@
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !=================================================================
 
 
 subroutine initialize(u,v1,v2,v3,c,dx,dy,nx,ny)
   !===============================================================
-  ! Description: 
+  ! Description:
   !    Sets the initial conditions into u, v1, v2, v3.
   !===============================================================
   ! inclusions
@@ -20,9 +19,9 @@ subroutine initialize(u,v1,v2,v3,c,dx,dy,nx,ny)
   real*8 :: xspan_c(nx), xspan_h(nx), yspan_c(ny), yspan_h(ny)
   real*8 :: x_c, x_h, y_c, y_h
   integer :: i, j
-  
+
   ! internals
-  
+
   ! set mesh points
   do i=1,nx
      xspan_c(i) = dx/2.d0 + (i-1)*dx
@@ -59,7 +58,7 @@ subroutine initialize(u,v1,v2,v3,c,dx,dy,nx,ny)
 
      end do
   end do
-  
+
   return
 
   ! end program

@@ -1,9 +1,8 @@
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !-----------------------------------------------------------------
-! Description: 
+! Description:
 !    Evolves the first-order 2D wave equations in time.
 !=================================================================
 
@@ -45,9 +44,9 @@ program advection
   real*8, dimension(:,:), allocatable :: u, v1, v2, v3
   real*8, external :: TIMER
   namelist /inputs/ nx, ny, nt, tstop, c, dtoutput
-  
+
   ! internals
-  
+
   stime = TIMER()
   ! read problem parameters from input file (should be in this order):
   !    nx - number of nodes in x-direction
@@ -171,10 +170,10 @@ program advection
      !$omp single
      t = t + dt
      !$omp end single
-     !$omp master 
+     !$omp master
      ftime = TIMER()
      runtime = runtime+ftime-stime
-     !$omp end master 
+     !$omp end master
 
      ! stop simulation if we've reached tstop
      if (t >= tstop)  exit
@@ -198,7 +197,7 @@ program advection
   ! end OpenMP parallelism
   !$omp end parallel
 
-  ! output final solution 
+  ! output final solution
   stime = TIMER()
   toutput = t
   noutput = noutput+1

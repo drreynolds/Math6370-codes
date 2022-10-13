@@ -1,16 +1,15 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 
-// Inclusions 
+// Inclusions
 #include <stdlib.h>     // new, delete
 #include <math.h>       // exp(), pow()
 #include "advection.h"  // idx(), prototypes
 
 // Sets the initial conditions into u, v1, v2, v3
-void initialize(double* u, double* v1, double* v2, double* v3, 
+void initialize(double* u, double* v1, double* v2, double* v3,
 		double c, double dx, double dy, int nx, int ny) {
 
   // declarations
@@ -22,7 +21,7 @@ void initialize(double* u, double* v1, double* v2, double* v3,
   xspan_h = new double[nx];
   yspan_c = new double[ny];
   yspan_h = new double[ny];
-  
+
   // set mesh points
   for (i=0; i<nx; i++) {
     xspan_c[i] = dx*(0.5 + i);
@@ -54,7 +53,7 @@ void initialize(double* u, double* v1, double* v2, double* v3,
       v1[idx(i,j,nx)] = 0.0;
       v2[idx(i,j,nx)] = -200.0*c*(x_h-1.0/3.0) *
   	         exp( -100.0*( pow(x_h-1.0/3.0,2.0) + pow(y_c-0.5,2.0) ) );
-      v3[idx(i,j,nx)] = -200.0*c*(y_h-0.5) * 
+      v3[idx(i,j,nx)] = -200.0*c*(y_h-0.5) *
    	         exp( -100.0*( pow(x_c-1.0/3.0,2.0) + pow(y_h-0.5,2.0) ) );
 
     } // for j
@@ -67,4 +66,3 @@ void initialize(double* u, double* v1, double* v2, double* v3,
   delete[] yspan_h;
 
 } // end initialize
-
