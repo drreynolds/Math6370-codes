@@ -25,12 +25,12 @@ int main(int argc, char* argv[]) {
 
   stime = get_time();
   /* read problem parameters from input file (should be in this order):
-        nx - number of nodes in x-direction
-	ny - number of nodes in y-direction
-	nt - number of time steps
-	tstop - final time (will stop at nt or stop, whichever is 1st)
-	c - wave speed
-	dtoutput - time frequency for outputting solutions */
+     nx - number of nodes in x-direction
+     ny - number of nodes in y-direction
+     nt - number of time steps
+     tstop - final time (will stop at nt or stop, whichever is 1st)
+     c - wave speed
+     dtoutput - time frequency for outputting solutions */
   FID = fopen("input.txt","r");
   i = fscanf(FID," &inputs\n");
   i = fscanf(FID,"  nx = %i,\n", &nx);

@@ -17,12 +17,12 @@ int main(int argc, char* argv[]) {
 
   double stime = get_time();
   /* read problem parameters from input file (should be in this order):
-        nx - number of nodes in x-direction
-	ny - number of nodes in y-direction
-	nt - number of time steps
-	tstop - final time (will stop at nt or stop, whichever is 1st)
-	c - wave speed
-	dtoutput - time frequency for outputting solutions */
+     nx - number of nodes in x-direction
+     ny - number of nodes in y-direction
+     nt - number of time steps
+     tstop - final time (will stop at nt or stop, whichever is 1st)
+     c - wave speed
+     dtoutput - time frequency for outputting solutions */
   int ierr, nx, ny, nt;
   double tstop, c, dtoutput;
   FILE* FID = fopen("input.txt","r");
