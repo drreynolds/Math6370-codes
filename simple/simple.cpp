@@ -31,8 +31,7 @@ int main(int argc, char* argv[]) {
   int number;
   if (myid != 0) {
     number = myid + 1;
-    if (MPI_Send(&number, 1, MPI_INT, 0, myid,
-		 MPI_COMM_WORLD) != MPI_SUCCESS) {
+    if (MPI_Send(&number, 1, MPI_INT, 0, myid, MPI_COMM_WORLD) != MPI_SUCCESS) {
       std::cerr << "Error in MPI_Send\n";
       return 1;
     }
@@ -46,10 +45,9 @@ int main(int argc, char* argv[]) {
 
       // receive the number from this processor
       MPI_Status status;
-      if (MPI_Recv(&number, 1, MPI_INT, p, MPI_ANY_TAG,
-		   MPI_COMM_WORLD, &status) != MPI_SUCCESS) {
-	std::cerr << "Error in MPI_Recv\n";
-	return 1;
+      if (MPI_Recv(&number, 1, MPI_INT, p, MPI_ANY_TAG, MPI_COMM_WORLD, &status) != MPI_SUCCESS) {
+        std::cerr << "Error in MPI_Recv\n";
+        return 1;
       }
 
       // get some information about this message
@@ -57,8 +55,8 @@ int main(int argc, char* argv[]) {
       int sender = status.MPI_SOURCE;
 
       // output the information and the data to screen
-      std::cout << "received value " << number << " from process " << p
-		<< ", tag = " << tag << ", sender = " << sender << std::endl;
+      std::cout << "received value " << number << " from process " << p 
+                << ", tag = " << tag << ", sender = " << sender << std::endl;
 
     } // for p
   } // if myid
