@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 6370
-   5 January 2013 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -17,16 +16,16 @@ int main(int argc, char* argv[]) {
 
   /* intialize MPI */
   if (MPI_Init(&argc, &argv) != MPI_SUCCESS) {
-    fprintf(stderr,"Error in MPI_Init\n"); 
+    fprintf(stderr,"Error in MPI_Init\n");
     return 1;
   }
   if (MPI_Comm_size(MPI_COMM_WORLD, &numprocs) != MPI_SUCCESS) {
-    fprintf(stderr,"Error in MPI_Comm_size\n"); 
+    fprintf(stderr,"Error in MPI_Comm_size\n");
     MPI_Abort(MPI_COMM_WORLD, 1);
     return 1;
   }
   if (MPI_Comm_rank(MPI_COMM_WORLD, &myid) != MPI_SUCCESS) {
-    fprintf(stderr,"Error in MPI_Comm_rank\n"); 
+    fprintf(stderr,"Error in MPI_Comm_rank\n");
     return 1;
   }
 
@@ -34,9 +33,9 @@ int main(int argc, char* argv[]) {
      - set the tag to mirror the sending processor id */
   if (myid != 0) {
     number = myid + 1;
-    if (MPI_Send(&number, 1, MPI_INT, 0, myid, 
+    if (MPI_Send(&number, 1, MPI_INT, 0, myid,
 		 MPI_COMM_WORLD) != MPI_SUCCESS) {
-      fprintf(stderr,"Error in MPI_Send\n"); 
+      fprintf(stderr,"Error in MPI_Send\n");
       return 1;
     }
   }
@@ -48,9 +47,9 @@ int main(int argc, char* argv[]) {
     for (p=1; p<numprocs; p++) {
 
       /* receive the number from this processor */
-      if (MPI_Recv(&number, 1, MPI_INT, p, MPI_ANY_TAG, 
+      if (MPI_Recv(&number, 1, MPI_INT, p, MPI_ANY_TAG,
 		   MPI_COMM_WORLD, &status) != MPI_SUCCESS) {
-	fprintf(stderr,"Error in MPI_Recv\n"); 
+	fprintf(stderr,"Error in MPI_Recv\n");
 	return 1;
       }
 
@@ -64,7 +63,7 @@ int main(int argc, char* argv[]) {
 
     } /* for p */
   } /* if myid */
-  
+
   /* finalize MPI */
   MPI_Finalize();
 

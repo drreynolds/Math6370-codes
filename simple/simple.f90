@@ -2,14 +2,13 @@
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
 ! SMU, Mathematics
-! Math 6370
-! 10 March 2009
+! Math 4370 / 6370
 !=================================================================
 
 
 program simple
   !-----------------------------------------------------------------
-  ! Description: 
+  ! Description:
   !    This is a simple program using the basic 6 MPI functions.
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -22,7 +21,7 @@ program simple
   integer :: status(MPI_STATUS_SIZE), tag, sender
 
   !======= Internals ============
-  
+
   ! intialize MPI
   call MPI_Init(ierr)
   call MPI_Comm_size(MPI_COMM_WORLD, numprocs, ierr)
@@ -37,7 +36,7 @@ program simple
 
   ! the root node receives these (in order) and outputs each to screen
   if (myid == 0) then
-     
+
      ! loop over all other processors
      do p=1,numprocs-1
 
@@ -54,11 +53,11 @@ program simple
              p, ', tag =',tag,', sender =',sender
 
      end do
-     
+
   endif
-  
+
   ! finalize MPI
-  call MPI_Finalize(ierr)  
+  call MPI_Finalize(ierr)
 
 end program simple
 !=================================================================
