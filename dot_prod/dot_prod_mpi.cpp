@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include <stdlib.h>
@@ -66,7 +65,7 @@ int main(int argc, char* argv[]) {
   inittime = ftime - stime;
 
   // root node outputs parallelism information to screen
-  if (myid == 0) 
+  if (myid == 0)
     std::cout << " starting MPI with " << numprocs << " processes\n";
 
   // start computation timer
@@ -111,4 +110,3 @@ int main(int argc, char* argv[]) {
   ierr = MPI_Finalize();
 
 } // end main
-

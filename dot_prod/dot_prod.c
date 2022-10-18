@@ -1,8 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
-
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -65,4 +63,3 @@ int main(int argc, char* argv[]) {
 
   return 0;
 } /* end main */
-

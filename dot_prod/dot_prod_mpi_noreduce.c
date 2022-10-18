@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -77,7 +76,7 @@ int main(int argc, char* argv[]) {
   /* perform manual reduction */
   if (myid != 0) {
     /* everyone sends value to root proc */
-    if (MPI_Send(&mysum, 1, MPI_DOUBLE, 0, 
+    if (MPI_Send(&mysum, 1, MPI_DOUBLE, 0,
 		 myid, MPI_COMM_WORLD) != MPI_SUCCESS) {
       fprintf(stderr,"Error in MPI_Send\n");
       MPI_Abort(MPI_COMM_WORLD, 1);
@@ -86,7 +85,7 @@ int main(int argc, char* argv[]) {
     /* root receives values from others and adds to own */
     sum = mysum;
     for (p=1; p<numprocs; p++) {
-      if (MPI_Recv(&mysum, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG, 
+      if (MPI_Recv(&mysum, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG,
 		   MPI_COMM_WORLD, &stat) != MPI_SUCCESS) {
 	fprintf(stderr,"Error in MPI_Send\n");
 	MPI_Abort(MPI_COMM_WORLD, 1);
@@ -116,4 +115,3 @@ int main(int argc, char* argv[]) {
   MPI_Finalize();
 
 } /* end main */
-

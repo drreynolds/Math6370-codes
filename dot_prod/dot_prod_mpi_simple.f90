@@ -2,14 +2,13 @@
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
 ! SMU, Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !=================================================================
 
 
 program DotProd_MPI
   !-----------------------------------------------------------------
-  ! Description: 
+  ! Description:
   !    Computes the dot-product of two vectors.
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -27,7 +26,7 @@ program DotProd_MPI
   double precision :: alloctime, inittime, runtime
 
   !======= Internals ============
-  
+
   ! intialize MPI
   call MPI_Init(ierr)
   call MPI_Comm_size(MPI_COMM_WORLD, numprocs, ierr)
@@ -41,7 +40,7 @@ program DotProd_MPI
      write(0,*) 'Error: function requires one argument (vector length)'
      call MPI_Abort(MPI_COMM_WORLD, 1, ierr)
   endif
-  
+
   ! convert n_string to integer, and ensure it's positive
   read (n_string, *) n
   if ( n < 1 ) then
@@ -102,7 +101,7 @@ program DotProd_MPI
   deallocate(a,b)
 
   ! finalize MPI
-  call MPI_Finalize(ierr)  
+  call MPI_Finalize(ierr)
 
 end program DotProd_MPI
 !=================================================================
