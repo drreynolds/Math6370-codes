@@ -1,16 +1,15 @@
 ! -*- Mode: Fortran90; -*-
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
-! SMU, Mathematics
-! Math 6395
-! 30 March 2009
+! SMU Mathematics
+! Math 4370 / 6370
 !=================================================================
 
 
 subroutine linresid2D(u, f, res, norm2, locN, locM, dx, dy, comm, ierr)
   !-----------------------------------------------------------------
-  ! Description: 
-  !    calculates the 2D linear residual 
+  ! Description:
+  !    calculates the 2D linear residual
   !             res = L*u - f
   !    and its L2-norm.
   !-----------------------------------------------------------------
@@ -36,7 +35,7 @@ subroutine linresid2D(u, f, res, norm2, locN, locM, dx, dy, comm, ierr)
   integer :: status(MPI_STATUS_SIZE)
 
   !======= Internals ============
-  
+
   ! Get MPI parallelism information from comm
   call MPI_Cart_get(comm, 2, pdims, periods, pcoords, ierr)
   if (ierr /= MPI_SUCCESS) then
@@ -96,7 +95,7 @@ subroutine linresid2D(u, f, res, norm2, locN, locM, dx, dy, comm, ierr)
         call MPI_Abort(comm, 1, ierr)
      endif
   end if
-  
+
   ! phase 1: open receive channels for neighbor values
   if (pcoords(1) /= 0) then
      call MPI_Irecv(Wrecv, locM, MPI_REAL8, nbW, 1, comm, reqW, ierr)

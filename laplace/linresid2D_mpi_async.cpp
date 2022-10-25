@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   28 February 2013 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include <stdlib.h>
@@ -9,45 +8,36 @@
 #include <string.h>
 #include <math.h>
 #include "mpi.h"
-#include "laplace2d.h"
+#include "laplace2d.hpp"
 
 
 /* Description:
-      calculates the 2D linear residual 
+      calculates the 2D linear residual
                res = L*u - f
       and its L2-norm. */
-int linresid2D(double *u, double *f, double *res, double *norm2, 
+int linresid2D(double *u, double *f, double *res, double &norm,
 	       int locN, int locM, double dx, double dy, MPI_Comm comm) {
 
-  // declarations
-  int ierr=0, my_id, i, j, nbW, nbE, nbS, nbN;
-  int pdims[2], pcoords[2], periods[2], nbcoords[2];
-  double norm;
-  double *Esend, *Wsend, *Nsend, *Ssend, *Erecv, *Wrecv, *Nrecv, *Srecv;
-  MPI_Request reqE, reqN, reqW, reqS, sreqE, sreqN, sreqW, sreqS;
-  MPI_Status status;
-
   // get MPI parallelism information from comm
+  int ierr, pdims[2], pcoords[2], periods[2];
   ierr = MPI_Cart_get(comm, 2, pdims, periods, pcoords);
   if (ierr != MPI_SUCCESS) {
     fprintf(stderr," error in MPI_Cart_get = %i\n",ierr);
     MPI_Abort(comm, 1);
   }
-  ierr = MPI_Comm_rank(comm, &my_id);
-  if (ierr != MPI_SUCCESS) {
-    fprintf(stderr," error in MPI_Comm_rank = %i\n",ierr);
-    MPI_Abort(comm, 1);
-  }
+
+  // allocate send/recv buffers
+  double *Esend = new double[locM];
+  double *Wsend = new double[locM];
+  double *Nsend = new double[locN];
+  double *Ssend = new double[locN];
+  double *Erecv = new double[locM];
+  double *Wrecv = new double[locM];
+  double *Nrecv = new double[locN];
+  double *Srecv = new double[locN];
 
   // initialize send/recv buffers
-  Esend = new double[locM];
-  Wsend = new double[locM];
-  Nsend = new double[locN];
-  Ssend = new double[locN];
-  Erecv = new double[locM];
-  Wrecv = new double[locM];
-  Nrecv = new double[locN];
-  Srecv = new double[locN];
+  int i, j;
   for (j=0; j<locM; j++)  Esend[j] = u[idx(locN-1,j,locN)];
   for (j=0; j<locM; j++)  Wsend[j] = u[idx(0,j,locN)];
   for (i=0; i<locN; i++)  Nsend[i] = u[idx(i,locM-1,locN)];
@@ -58,6 +48,7 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
   for (i=0; i<locN; i++)  Srecv[i] = 0.0;
 
   // determine process 'neighbors'
+  int nbW, nbE, nbS, nbN, nbcoords[2];
   if (pcoords[0] > 0) {
     nbcoords[0] = pcoords[0]-1;
     nbcoords[1] = pcoords[1];
@@ -96,6 +87,7 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
   }
 
   // phase 1: open receive channels for neighbor values
+  MPI_Request reqE, reqN, reqW, reqS, sreqE, sreqN, sreqW, sreqS;
   if (pcoords[0] > 0) {
     ierr = MPI_Irecv(Wrecv, locM, MPI_DOUBLE, nbW, 1, comm, &reqW);
     if (ierr != MPI_SUCCESS) {
@@ -157,18 +149,19 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
 
 
   // phase 3: compute linear residual in interior of subdomain
-  norm = 0.0;
+  double mynorm = 0.0;
   for (i=1; i<locN-1; i++) {
     for (j=1; j<locM-1; j++) {
       res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
 	+ (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
 	+ (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
-      norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+      mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
     }
   }
 
 
   // phase 4: wait until receives finish
+  MPI_Status status;
   if (pcoords[0] > 0) {
     ierr = MPI_Wait(&reqW, &status);
     if (ierr != MPI_SUCCESS) {
@@ -207,69 +200,69 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
     res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
       + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
       + (Srecv[i] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
-    norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+    mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
   }
 
   //   compute linear residual at West edge of local subdomain
   i=0;
   for (j=1; j<locM-1; j++) {
-    res[idx(i,j,locN)] =  -f[idx(i,j,locN)] 
+    res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
       + (Wrecv[j] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
       + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
-    norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+    mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
   }
-    
+
   //   compute linear residual at East edge of local subdomain
   i=locN-1;
   for (j=1; j<locM-1; j++) {
-    res[idx(i,j,locN)] = -f[idx(i,j,locN)] 
+    res[idx(i,j,locN)] = -f[idx(i,j,locN)]
       + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + Erecv[j])/dx/dx
       + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy ;
-    norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+    mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
   }
 
   //   compute linear residual at North edge of local subdomain
   j=locM-1;
   for (i=1; i<locN-1; i++) {
-    res[idx(i,j,locN)] =  -f[idx(i,j,locN)] 
+    res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
       + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
       + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + Nrecv[i])/dy/dy;
-    norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+    mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
   }
 
   // phase 6: compute linear residual at corners of local subdomain
   i=0; j=0;
-  res[idx(i,j,locN)] =  -f[idx(i,j,locN)] 
+  res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
     + (Wrecv[j] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
     + (Srecv[i] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
-  norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+  mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
 
   i=locN-1; j=0;
   res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
     + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + Erecv[j])/dx/dx
     + (Srecv[i] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
-  norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+  mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
 
   i=0; j=locM-1;
   res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
     + (Wrecv[j] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
     + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + Nrecv[i])/dy/dy;
-  norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+  mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
 
   i=locN-1; j=locM-1;
   res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
     + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + Erecv[j])/dx/dx
     + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + Nrecv[i])/dy/dy;
-  norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
+  mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
 
 
   // phase 7: combine local sums into global L2-norm
-  ierr = MPI_Allreduce(&norm, norm2, 1, MPI_DOUBLE, MPI_SUM, comm);
+  ierr = MPI_Allreduce(&mynorm, &norm, 1, MPI_DOUBLE, MPI_SUM, comm);
   if (ierr != MPI_SUCCESS) {
     printf(" error in MPI_Allreduce = %i\n",ierr);
     MPI_Abort(comm, 1);
   }
-  *norm2 = sqrt(*norm2);
+  norm = sqrt(norm);
 
   // phase 8: wait until sends finish
   if (pcoords[0] > 0) {
@@ -315,4 +308,3 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
   return ierr;
 
 } // end linresid
-

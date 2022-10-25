@@ -1,20 +1,19 @@
 ! -*- Mode: Fortran90; -*-
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
-! SMU, Mathematics
-! Math 6370
-! 30 March 2009
+! SMU Mathematics
+! Math 4370 / 6370
 !=================================================================
 
 
 program Laplace2D
   !-----------------------------------------------------------------
-  ! Description: 
-  !   We set up the linear residual 
+  ! Description:
+  !   We set up the linear residual
   !           L*u - f,
-  !   where L is a standard 2D Laplace operator, and f and u are 
-  !   given vectors.  These are decomposed using a 2D parallel 
-  !   domain decomposition strategy.  We then call the routine 
+  !   where L is a standard 2D Laplace operator, and f and u are
+  !   given vectors.  These are decomposed using a 2D parallel
+  !   domain decomposition strategy.  We then call the routine
   !   linresid2D to compute the linear residual above.
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -160,7 +159,7 @@ program Laplace2D
         f(i,j) = 1.d0
      end do
   end do
-  
+
   ! Adjust u at domain boundary
   if (pcoords(1) == 0) then
      u(1,:) = 0.d0
@@ -198,7 +197,7 @@ program Laplace2D
      print *,' runtime = ',ftime-stime
   end if
 
-  
+
   ! output residual to file(s)
   !   root outputs problem/parallelism information
   if (my_id == 0) then
@@ -218,7 +217,7 @@ program Laplace2D
      end do
   end do
   close(102)
-  
+
   ! Free allocated memory
   deallocate(u,f,res)
 

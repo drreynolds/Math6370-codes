@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   20 January 2011 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -12,11 +11,11 @@
 #include "laplace2d.h"
 
 
-/*   We set up the linear residual 
+/*   We set up the linear residual
              L*u - f,
-     where L is a standard 2D Laplace operator, and f and u are 
-     given vectors.  These are decomposed using a 2D parallel 
-     domain decomposition strategy.  We then call the routine 
+     where L is a standard 2D Laplace operator, and f and u are
+     given vectors.  These are decomposed using a 2D parallel
+     domain decomposition strategy.  We then call the routine
      linresid2D to compute the linear residual above. */
 int main(int argc, char* argv[]) {
 
@@ -80,7 +79,7 @@ int main(int argc, char* argv[]) {
   M  = buf[1];
   px = buf[2];
   py = buf[3];
-  
+
   /* check that the processor layout and communicator size agree */
   if (nprocs != px*py) {
     if (my_id == 0) {
@@ -122,10 +121,10 @@ int main(int argc, char* argv[]) {
   xl = dx*locN*pcoords[0];
   yl = dy*locM*pcoords[1];
   if (pcoords[0] == px-1)
-    if (locN*px != N) 
+    if (locN*px != N)
       locN = N - locN*(px-1);
   if (pcoords[1] == py-1)
-    if (locM*py != M) 
+    if (locM*py != M)
       locM = M - locM*(py-1);
 
   /* root node outputs some information to screen */
@@ -154,16 +153,16 @@ int main(int argc, char* argv[]) {
   }
 
   /* adjust u at domain boundary */
-  if (pcoords[0] == 0) 
+  if (pcoords[0] == 0)
     for (j=0; j<locM; j++)
       u[idx(0,j,locN)] = 0.0;
-  if (pcoords[0] == px-1) 
+  if (pcoords[0] == px-1)
     for (j=0; j<locM; j++)
       u[idx(locN-1,j,locN)] = 0.0;
-  if (pcoords[1] == 0) 
+  if (pcoords[1] == 0)
     for (i=0; i<locN; i++)
       u[idx(i,0,locN)] = 0.0;
-  if (pcoords[1] == py-1) 
+  if (pcoords[1] == py-1)
     for (i=0; i<locN; i++)
       u[idx(i,locM-1,locN)] = 0.0;
 
@@ -200,8 +199,8 @@ int main(int argc, char* argv[]) {
   fprintf(FID, "%i\n", locM);
   fprintf(FID, "%i\n", pcoords[0]);
   fprintf(FID, "%i\n", pcoords[1]);
-  for (j=0; j<locM; j++) 
-    for (i=0; i<locN; i++) 
+  for (j=0; j<locM; j++)
+    for (i=0; i<locN; i++)
       fprintf(FID, "%.16e\n",res[idx(i,j,locN)]);
   fclose(FID);
 
@@ -214,4 +213,3 @@ int main(int argc, char* argv[]) {
   MPI_Finalize();
 
 } /* end main */
-

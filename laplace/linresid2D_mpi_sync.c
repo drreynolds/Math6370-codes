@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   20 January 2011 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -13,10 +12,10 @@
 
 
 /* Description:
-      calculates the 2D linear residual 
+      calculates the 2D linear residual
                res = L*u - f
       and its L2-norm. */
-int linresid2D(double *u, double *f, double *res, double *norm2, 
+int linresid2D(double *u, double *f, double *res, double *norm2,
 	       int locN, int locM, double dx, double dy, MPI_Comm comm) {
 
   /* declarations */
@@ -271,17 +270,17 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
   /* compute linear residual at West edge of local subdomain */
   i=0;
   for (j=1; j<locM-1; j++) {
-    res[idx(i,j,locN)] =  -f[idx(i,j,locN)] 
+    res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
       + (Wrecv[j] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
       + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
     norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
   }
 
-    
+
   /* compute linear residual at East edge of local subdomain */
   i=locN-1;
   for (j=1; j<locM-1; j++) {
-    res[idx(i,j,locN)] = -f[idx(i,j,locN)] 
+    res[idx(i,j,locN)] = -f[idx(i,j,locN)]
       + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + Erecv[j])/dx/dx
       + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy ;
     norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
@@ -290,7 +289,7 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
   /* compute linear residual at North edge of local subdomain */
   j=locM-1;
   for (i=1; i<locN-1; i++) {
-    res[idx(i,j,locN)] =  -f[idx(i,j,locN)] 
+    res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
       + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
       + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + Nrecv[i])/dy/dy;
     norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
@@ -298,7 +297,7 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
 
   /* compute linear residual at corners of local subdomain */
   i=0; j=0;
-  res[idx(i,j,locN)] =  -f[idx(i,j,locN)] 
+  res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
     + (Wrecv[j] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
     + (Srecv[i] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
   norm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
@@ -343,4 +342,3 @@ int linresid2D(double *u, double *f, double *res, double *norm2,
   return ierr;
 
   } /* end linresid */
-
