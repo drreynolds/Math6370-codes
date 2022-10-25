@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 6370
-   20 January 2011 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -35,10 +34,10 @@ int main(int argc, char* argv[]) {
   for (i=0; i<m; i++)  A[i] = (double *) malloc(n * sizeof(double));
   x = (double *) malloc(n * sizeof(double));
   b = (double *) malloc(m * sizeof(double));
-  
+
   /* initialize the matrix and vectors */
-  for (i=0; i<m; i++) 
-    for (j=0; j<n; j++) 
+  for (i=0; i<m; i++)
+    for (j=0; j<n; j++)
       A[i][j] = 1.0/(1.0 + (i-j)*(i-j));
   for (i=0; i<m; i++)  b[i] = 0.0;
   for (j=0; j<n; j++)  x[j] = 1.0;
@@ -47,8 +46,8 @@ int main(int argc, char* argv[]) {
   stime = get_time();
 
   /* compute matrix-vector product (row-based version) */
-  for (i=0; i<m; i++) 
-    for (j=0; j<n; j++) 
+  for (i=0; i<m; i++)
+    for (j=0; j<n; j++)
       b[i] += A[i][j]*x[j];
 
   /* stop timer */
@@ -66,7 +65,7 @@ int main(int argc, char* argv[]) {
   FID = fopen("b.txt","w");
   for (i=0; i<m; i++)  fprintf(FID,"%.15e\n",b[i]);
   fclose(FID);
-  
+
   /* free matrix and vectors */
   for (i=0; i<m; i++)  free(A[i]);
   free(A);
@@ -74,4 +73,3 @@ int main(int argc, char* argv[]) {
   free(b);
 
 } /* end main */
-

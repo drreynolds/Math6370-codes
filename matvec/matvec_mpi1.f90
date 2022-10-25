@@ -1,15 +1,14 @@
 ! -*- Mode: Fortran90; -*-
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
-! SMU, Mathematics
-! Math 6370
-! 7 January 2009
+! SMU Mathematics
+! Math 4370 / 6370
 !=================================================================
 
 
 program MatVec_MPI
   !-----------------------------------------------------------------
-  ! Description: 
+  ! Description:
   !    Computes the product of an m*n matrix and an n-vector.
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -22,7 +21,7 @@ program MatVec_MPI
   double precision :: norm2, stime, ftime
 
   !======= Internals ============
-  
+
   ! intialize MPI
   call MPI_Init(ierr)
   if (ierr /= 0) then
@@ -70,7 +69,7 @@ program MatVec_MPI
      endif
      call MPI_Abort(MPI_COMM_WORLD, 1, ierr)
   endif
-  
+
   ! root node outputs parallelism information to screen
   if (myid == 0) then
      print '(A,i5,A)', ' starting MPI with ', numprocs,' processes'
@@ -139,7 +138,7 @@ program MatVec_MPI
   deallocate(A,x,b,myb)
 
   ! finalize MPI
-  call MPI_Finalize(ierr)  
+  call MPI_Finalize(ierr)
 
 end program MatVec_MPI
 !=================================================================

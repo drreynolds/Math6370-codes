@@ -3,8 +3,7 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 4370/6370
-#  26 February 2015
+#  Math 4370 / 6370
 ###################################################################
 
 # F90
@@ -23,14 +22,13 @@ MPICC = mpicc
 CFLAGS = -O2
 
 
-
 # makefile targets
 all : cpp c f90
 
 
 cpp : matvec_row_cpp.exe matvec_col_cpp.exe \
       matvec_mpi1_cpp.exe matvec_mpi2_cpp.exe \
-      matvec_mpi3_cpp.exe 
+      matvec_mpi3_cpp.exe
 
 matvec_row_cpp.exe : matvec_row.cpp get_time.c
 	$(CXX) $(CXXFLAGS) $^ -lm -o $@
@@ -50,7 +48,7 @@ matvec_mpi3_cpp.exe : matvec_mpi3.cpp
 
 c : matvec_row_c.exe matvec_col_c.exe \
     matvec_mpi1_c.exe matvec_mpi2_c.exe \
-    matvec_mpi3_c.exe 
+    matvec_mpi3_c.exe
 
 matvec_row_c.exe : matvec_row.c get_time.c
 	$(CC) $(CFLAGS) $^ -lm -o $@

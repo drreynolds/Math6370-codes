@@ -1,8 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 6370
-   20 January 2011 */
-
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -59,13 +57,13 @@ int main(int argc, char* argv[]) {
   }
 
   if ((m < 1) || (n < 1)) {
-    if (myid == 0) 
+    if (myid == 0)
       fprintf(stderr," Illegal input, m = %i and n = %i must both be >= 1\n",m,n);
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
 
   /* root node outputs parallelism information to screen */
-  if (myid == 0) 
+  if (myid == 0)
     printf(" starting MPI with %i processes\n",numprocs);
 
   /* determine this processor's interval */
@@ -80,10 +78,10 @@ int main(int argc, char* argv[]) {
   x = (double *) malloc((je-js) * sizeof(double));
   b = (double *) malloc(m * sizeof(double));
   myb = (double *) malloc(m * sizeof(double));
-  
+
   /* initialize the matrix and vectors */
-  for (i=0; i<m; i++) 
-    for (j=js; j<je; j++) 
+  for (i=0; i<m; i++)
+    for (j=js; j<je; j++)
       A[i][j-js] = 1.0/(1.0 + (i-j)*(i-j));
   for (j=0; j<m; j++)    b[j] = 0.0;
   for (j=js; j<je; j++)  x[j-js] = 1.0;
@@ -93,8 +91,8 @@ int main(int argc, char* argv[]) {
 
   /* compute matrix-vector product */
   for (i=0; i<m; i++)  myb[i] = 0.0;
-  for (i=0; i<m; i++) 
-    for (j=js; j<je; j++) 
+  for (i=0; i<m; i++)
+    for (j=js; j<je; j++)
       myb[i] += A[i][j-js]*x[j-js];
 
   /* root node collects result */
@@ -132,4 +130,3 @@ int main(int argc, char* argv[]) {
   ierr = MPI_Finalize();
 
 } /* end main */
-

@@ -1,15 +1,13 @@
 ! -*- Mode: Fortran90; -*-
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
-! SMU, Mathematics
-! Math 6370
-! 7 January 2009
+! SMU Mathematics
+! Math 4370 / 6370
 !=================================================================
-
 
 program MatVec
   !-----------------------------------------------------------------
-  ! Description: 
+  ! Description:
   !    Computes the product of an m*n matrix and an n-vector.
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -33,7 +31,7 @@ program MatVec
           ' must both be >= 1'
      stop
   endif
-  
+
   ! initialize the matrix and vectors
   allocate(A(m,n),x(n),b(m))
   do j=1,n
@@ -72,7 +70,7 @@ program MatVec
      write(101,'(es22.15)') b(i)
   enddo
   close(101)
-  
+
   ! free vectors
   deallocate(A,x,b)
 
