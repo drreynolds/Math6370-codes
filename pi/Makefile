@@ -3,8 +3,7 @@
 #
 #  Daniel R. Reynolds
 #  SMU Mathematics
-#  Math 6370
-#  26 February 2013
+#  Math 4370 / 6370
 ###################################################################
 
 F90 = gfortran

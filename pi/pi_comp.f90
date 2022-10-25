@@ -2,18 +2,16 @@
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !=================================================================
-
 
 program ComputePi
   !-----------------------------------------------------------------
-  ! Description: 
+  ! Description:
   !    Computes pi through numerical integration via
   !        pi = 4*int_0^1 1/(1+x^2) dx
-  !    We use a simple midpoint rule for integration, over 
-  !    subintervals of fixed size 1/n, where n is a user-input 
+  !    We use a simple midpoint rule for integration, over
+  !    subintervals of fixed size 1/n, where n is a user-input
   !    parameter.
   !-----------------------------------------------------------------
   !======= Inclusions ===========
@@ -26,7 +24,7 @@ program ComputePi
   double precision, parameter :: pi_true = 3.14159265358979323846d0
 
   !======= Internals ============
-  
+
   ! set the integrand function
   f(a) = 4.d0 / (1.d0 + a*a)
 
@@ -58,7 +56,7 @@ program ComputePi
   write(*,*) '     true pi =',pi_true
   write(*,*) '       error =',pi_true - pi
   write(*,*) '     runtime =',ftime-stime
-  
+
 
 end program ComputePi
 !=================================================================

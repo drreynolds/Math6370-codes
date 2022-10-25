@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -40,7 +39,7 @@ int main(int argc, char* argv[]) {
 
   /* root sends n out to other processors */
   ierr = MPI_Bcast(&n, 1, MPI_INT, 0, MPI_COMM_WORLD);
-  
+
   /* stop for illegal n */
   if (n < 1)  MPI_Abort(MPI_COMM_WORLD, 1);
 
@@ -55,7 +54,7 @@ int main(int argc, char* argv[]) {
   ie = ((int) (1.0*n/numprocs))*(myid+1);
   if (myid == numprocs-1)  ie = n;
 
-  /* perform integration over n intervals */ 
+  /* perform integration over n intervals */
   mypi = 0.0;
   for (i=is; i<=ie; i++) {
     x = h * (i - 0.5);

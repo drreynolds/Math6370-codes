@@ -1,14 +1,13 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 // Inclusions
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 #include "get_time.h"
-
 
 // Prototypes
 inline double f(double a) { return (4.0 / (1.0 + a*a)); }
@@ -20,12 +19,8 @@ inline double f(double a) { return (4.0 / (1.0 + a*a)); }
    subintervals of fixed size 1/n, where n is a user-input parameter. */
 int main(int argc, char* argv[]) {
 
-  // declarations
-  int i, n;
-  double h, x, pi, runtime, pi_true=3.14159265358979323846;
-  double stime, ftime;
-
   // input the number of intervals
+  int n;
   std::cout << "Enter the number of intervals (0 quits):\n";
   std::cin >> n;
   if (n<1) {
@@ -33,28 +28,27 @@ int main(int argc, char* argv[]) {
   }
 
   // start timer
-  stime = get_time();
+  double stime = get_time();
 
   // set subinterval width
-  h = 1.0 / n;
+  double h = 1.0 / n;
 
   // perform integration over n intervals
-  pi = 0.0;
-  for (i=0; i<n; i++) {
-    x = h * (i + 0.5);
+  double pi = 0.0;
+  for (int i=0; i<n; i++) {
+    double x = h * (i + 0.5);
     pi += h * f(x);
   }
 
   // stop timer
-  ftime = get_time();
-  runtime = ftime - stime;
+  double ftime = get_time();
+  double runtime = ftime - stime;
 
   // output computed value and error
   std::cout << " computed pi = " << std::setprecision(16) << pi << std::endl;
-  std::cout << "     true pi = " << pi_true << std::endl;
-  std::cout << "       error = " << pi_true-pi << std::endl;
+  std::cout << "     true pi = " << M_PI << std::endl;
+  std::cout << "       error = " << M_PI-pi << std::endl;
   std::cout << "     runtime = " << runtime << std::endl;
 
   return 0;
 } // end main
-

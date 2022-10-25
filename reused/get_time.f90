@@ -2,18 +2,17 @@
 !-----------------------------------------------------------------
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !=================================================================
 
 
 subroutine get_time(tval)
   !-----------------------------------------------------------------
-  ! Description: 
-  !    Calls the date_and_time routine to output the current time 
-  !    of day in seconds, and returns with a negative value if the 
+  ! Description:
+  !    Calls the date_and_time routine to output the current time
+  !    of day in seconds, and returns with a negative value if the
   !    system_clock routine does not provide complete information.
-  ! 
+  !
   ! Arguments:
   !    tval - double (output), current time in seconds
   !-----------------------------------------------------------------
@@ -25,7 +24,7 @@ subroutine get_time(tval)
   double precision :: tval
 
   !======= Internals ============
-  
+
   call system_clock(COUNT = c, COUNT_RATE = r, COUNT_MAX = m)
 
   ! check that system_clock gives complete information
@@ -37,7 +36,7 @@ subroutine get_time(tval)
   ! combine outputs into the result
   tval = 1.d0*c/r
 
-  return 
+  return
 
 end subroutine get_time
 !=================================================================
