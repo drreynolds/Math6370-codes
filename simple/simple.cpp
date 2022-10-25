@@ -35,6 +35,7 @@ int main(int argc, char* argv[]) {
       std::cerr << "Error in MPI_Send\n";
       return 1;
     }
+    std::cout << "Process " << myid << " completed send\n";
   }
 
   // the root node receives these (in order) and outputs each to screen
@@ -45,7 +46,7 @@ int main(int argc, char* argv[]) {
 
       // receive the number from this processor
       MPI_Status status;
-      if (MPI_Recv(&number, 1, MPI_INT, p, MPI_ANY_TAG, MPI_COMM_WORLD, &status) != MPI_SUCCESS) {
+      if (MPI_Recv(&number, 1, MPI_INT, MPI_ANY_SOURCE, MPI_ANY_TAG, MPI_COMM_WORLD, &status) != MPI_SUCCESS) {
         std::cerr << "Error in MPI_Recv\n";
         return 1;
       }

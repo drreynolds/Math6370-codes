@@ -11,7 +11,7 @@ F90 = gfortran
 MPIF90 = mpif90
 FFLAGS = -O2
 
-CC = g++
+CC = gcc
 MPICC = mpicc
 CFLAGS = -O2
 

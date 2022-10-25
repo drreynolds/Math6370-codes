@@ -12,13 +12,8 @@
 // Example routine to compute the dot-product of two vectors
 int main(int argc, char* argv[]) {
 
-  // declarations
-  int i, n, is, ie;
-  double *a, *b, sum, mysum, alloctime, inittime, runtime;
-  double stime, ftime;
-  int ierr, numprocs, myid;
-
   // initialize MPI
+  int ierr, numprocs, myid;
   ierr = MPI_Init(&argc, &argv);
   ierr = MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
   ierr = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
@@ -30,46 +25,47 @@ int main(int argc, char* argv[]) {
   }
 
   // set n as the input argument, and ensure it's positive
-  n = atoi(argv[1]);
+  int n = atoi(argv[1]);
   if (n < 1) {
     std::cerr << "Error: vector length " << n << " must be greater than 0\n";
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
 
   // allocate the vectors (go ahead and put the whole thing on all procs)
-  stime = MPI_Wtime();
-  a = new double[n];
-  b = new double[n];
-  ftime = MPI_Wtime();
-  alloctime = ftime - stime;
+  double stime = MPI_Wtime();
+  double *a = new double[n];
+  double *b = new double[n];
+  double ftime = MPI_Wtime();
+  double alloctime = ftime - stime;
 
   // initialize the vector values
   stime = MPI_Wtime();
-  for (i=0; i<n; i++) {
+  for (int i=0; i<n; i++) {
     a[i] = (0.001 * (i + 1.0)) / n;
     b[i] = (0.001 * (n - i - 1.0)) / n;
   }
   ftime = MPI_Wtime();
-  inittime = ftime - stime;
+  double inittime = ftime - stime;
 
   // start computation timer
   stime = MPI_Wtime();
 
   // determine this processor's interval
-  is = ((int) (1.0*n/numprocs))*myid;
-  ie = ((int) (1.0*n/numprocs))*(myid+1);
+  int is = ((int) (1.0*n/numprocs))*myid;
+  int ie = ((int) (1.0*n/numprocs))*(myid+1);
   if (myid == numprocs-1)  ie = n;
 
   // compute dot-product
-  mysum = 0.0;
-  for (i=is; i<ie; i++)  mysum += a[i]*b[i];
+  double mysum = 0.0;
+  for (int i=is; i<ie; i++)  mysum += a[i]*b[i];
 
   // root node collects result
+  double sum;
   ierr = MPI_Reduce(&mysum, &sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
 
   // stop timer
   ftime = MPI_Wtime();
-  runtime = ftime-stime;
+  double runtime = ftime-stime;
 
   // output computed value and runtime
   if (myid == 0) {
