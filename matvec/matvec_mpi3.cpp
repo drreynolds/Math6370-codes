@@ -31,7 +31,7 @@ int main(int argc, char* argv[]) {
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
 
-  // root node inputs the sie of the system
+  // root node inputs the size of the system
   int m, n;
   if (myid == 0) {
     std::cout << "We will multiply a m*n matrix by an n-vector\n";
@@ -57,7 +57,7 @@ int main(int argc, char* argv[]) {
   if ((m < 1) || (n < 1)) {
     if (myid == 0)
       std::cerr << " Illegal input, m = " << m << " and n = "
-		<< n << " must both be >= 1\n";
+		            << n << " must both be >= 1\n";
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
 
