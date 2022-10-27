@@ -92,16 +92,16 @@ int linresid2D(double *u, double *f, double *res, double &norm,
     if (pcoords[0] < pdims[0]-1) {
       ierr = MPI_Send(Esend, locM, MPI_DOUBLE, nbE, 100, comm);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Send = %i\n",ierr);
-	MPI_Abort(comm, 1);
+	      fprintf(stderr," error in MPI_Send = %i\n",ierr);
+	      MPI_Abort(comm, 1);
       }
     }
   } else {
     if (pcoords[0] > 0) {
       ierr = MPI_Recv(Wrecv, locM, MPI_DOUBLE, nbW, 100, comm, &status);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Recv = %i\n",ierr);
-	MPI_Abort(comm, 1);
+	      fprintf(stderr," error in MPI_Recv = %i\n",ierr);
+	      MPI_Abort(comm, 1);
       }
     }
   }
@@ -111,16 +111,16 @@ int linresid2D(double *u, double *f, double *res, double &norm,
     if (pcoords[0] < pdims[0]-1) {
       ierr = MPI_Recv(Erecv, locM, MPI_DOUBLE, nbE, 101, comm, &status);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Recv = %i\n",ierr);
-	MPI_Abort(comm, 1);
+	      fprintf(stderr," error in MPI_Recv = %i\n",ierr);
+	      MPI_Abort(comm, 1);
       }
     }
   } else {
     if (pcoords[0] > 0) {
       ierr = MPI_Send(Wsend, locM, MPI_DOUBLE, nbW, 101, comm);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Send = %i\n",ierr);
-	MPI_Abort(comm, 1);
+	      fprintf(stderr," error in MPI_Send = %i\n",ierr);
+	      MPI_Abort(comm, 1);
       }
     }
   }
@@ -130,16 +130,16 @@ int linresid2D(double *u, double *f, double *res, double &norm,
     if (pcoords[0] < pdims[0]-1) {
       ierr = MPI_Send(Esend, locM, MPI_DOUBLE, nbE, 102, comm);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Send = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Send = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   } else {
     if (pcoords[0] > 0) {
       ierr = MPI_Recv(Wrecv, locM, MPI_DOUBLE, nbW, 102, comm, &status);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Recv = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Recv = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   }
@@ -149,16 +149,16 @@ int linresid2D(double *u, double *f, double *res, double &norm,
     if (pcoords[0] < pdims[0]-1) {
       ierr = MPI_Recv(Erecv, locM, MPI_DOUBLE, nbE, 103, comm, &status);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Recv = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Recv = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   } else {
     if (pcoords[0] > 0) {
       ierr = MPI_Send(Wsend, locM, MPI_DOUBLE, nbW, 103, comm);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Send = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Send = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   }
@@ -168,16 +168,16 @@ int linresid2D(double *u, double *f, double *res, double &norm,
     if (pcoords[1] < pdims[1]-1) {
       ierr = MPI_Send(Nsend, locN, MPI_DOUBLE, nbN, 104, comm);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Send = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Send = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   } else {
     if (pcoords[1] > 0) {
       ierr = MPI_Recv(Srecv, locN, MPI_DOUBLE, nbS, 104, comm, &status);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Recv = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Recv = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   }
@@ -187,16 +187,16 @@ int linresid2D(double *u, double *f, double *res, double &norm,
     if (pcoords[1] < pdims[1]-1) {
       ierr = MPI_Recv(Nrecv, locN, MPI_DOUBLE, nbN, 105, comm, &status);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Recv = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Recv = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   } else {
     if (pcoords[1] > 0) {
       ierr = MPI_Send(Ssend, locN, MPI_DOUBLE, nbS, 105, comm);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Send = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Send = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   }
@@ -206,16 +206,16 @@ int linresid2D(double *u, double *f, double *res, double &norm,
     if (pcoords[1] < pdims[1]-1) {
       ierr = MPI_Send(Nsend, locN, MPI_DOUBLE, nbN, 106, comm);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Send = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Send = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   } else {
     if (pcoords[1] > 0) {
       ierr = MPI_Recv(Srecv, locN, MPI_DOUBLE, nbS, 106, comm, &status);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Recv = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Recv = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   }
@@ -225,16 +225,16 @@ int linresid2D(double *u, double *f, double *res, double &norm,
     if (pcoords[1] < pdims[1]-1) {
       ierr = MPI_Recv(Nrecv, locN, MPI_DOUBLE, nbN, 107, comm, &status);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Recv = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Recv = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   } else {
     if (pcoords[1] > 0) {
       ierr = MPI_Send(Ssend, locN, MPI_DOUBLE, nbS, 107, comm);
       if (ierr != MPI_SUCCESS) {
-	fprintf(stderr," error in MPI_Send = %i\n",ierr);
-	MPI_Abort(comm, 1);
+        fprintf(stderr," error in MPI_Send = %i\n",ierr);
+        MPI_Abort(comm, 1);
       }
     }
   }
@@ -244,8 +244,8 @@ int linresid2D(double *u, double *f, double *res, double &norm,
   for (i=1; i<locN-1; i++) {
     for (j=1; j<locM-1; j++) {
       res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
-	+ (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
-	+ (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
+        + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
+        + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
       mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
     }
   }
