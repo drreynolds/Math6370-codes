@@ -2,6 +2,6 @@
 #
 # File to set the relevant environment variables to compile/run this example on Dan's laptop
 
-export HYPRE_ROOT=/usr/local/hypre-2.24.0/gcc-11.2.0-int32/
-export MPICXX=/usr/local/hypre-2.24.0/gcc-11.2.0-int32/bin/mpicxx
-export MPIEXEC=/usr/local/hypre-2.24.0/gcc-11.2.0-int32/bin/mpiexec
+export HYPRE_ROOT=/opt/local/hypre-2.25.0/
+export MPICXX=/opt/homebrew/bin/mpicxx
+export MPIEXEC=/opt/homebrew/bin/mpiexec
