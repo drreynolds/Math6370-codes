@@ -1,7 +1,7 @@
 /*----------------------------------------------------------------
- Daniel R. Reynolds @ SMU Mathematics
- -----------------------------------------------------------------
- Copyright 2017, All rights reserved
+ Daniel R. Reynolds
+ SMU Mathematics
+ Math 4370 / 6370
  -----------------------------------------------------------------
  Description:
    This example sets up (and solves) a scalar-valued Poisson-like
@@ -16,7 +16,6 @@
    cell-centered finite-volume grid.
 
    This routine uses HYPRE's PFMG geometric multigrid solver.
-   preconditioner.
  -------------------------------------------------------------- */
 #include <stdio.h>
 #include <stdlib.h>
