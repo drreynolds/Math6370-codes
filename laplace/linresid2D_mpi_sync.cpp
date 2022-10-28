@@ -8,7 +8,7 @@
 #include <string.h>
 #include <math.h>
 #include "mpi.h"
-#include "laplace2d.h"
+#include "laplace2d.hpp"
 
 
 /* Description:
