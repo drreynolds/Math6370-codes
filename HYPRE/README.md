@@ -33,5 +33,5 @@ We also recommend that if the `mpiexec` corresponding with the `MPICXX` above is
 
 * `MPIEXEC`: the MPI execution launch script that corresponds with `MPICXX` above.
 
-[Daniel R. Reynolds](https://github.com/drreynolds)
+[Daniel R. Reynolds](https://github.com/drreynolds)  
 [Mathematics @ SMU](https://www.smu.edu/math)
