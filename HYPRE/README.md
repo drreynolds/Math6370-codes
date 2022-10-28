@@ -33,5 +33,12 @@ We also recommend that if the `mpiexec` corresponding with the `MPICXX` above is
 
 * `MPIEXEC`: the MPI execution launch script that corresponds with `MPICXX` above.
 
+Utility scripts are provided to set the relevant environment variables (and to load the relevant modules if necessary) for Maneframe2 and Stampede2.  To use these, execute e.g.
+``` bash
+source ./setup_m2.sh 
+```
+before running `make`.
+
+
 [Daniel R. Reynolds](https://github.com/drreynolds)  
 [Mathematics @ SMU](https://www.smu.edu/math)
