@@ -2,7 +2,9 @@
 
 ## Examples
 
-This directory includes 4 separate HYPRE examples, all of which use HYPRE's structure-grid interface.  Each example sets up and solves a scalar-valued Poisson-like problem, with homogeneous Dirichlet boundary conditions, $$(I + L)v = w$$, where $$L$$ is a standard two-dimensional, 5-point Laplace stencil operator (with potentially anisotropic diffusion coefficients), and $$w$$ is a smooth right-hand side vector.
+This directory includes 4 separate HYPRE examples, all of which use HYPRE's structure-grid interface.  Each example sets up and solves a scalar-valued Poisson-like problem, with homogeneous Dirichlet boundary conditions,
+$$(I + L)v = w,$$
+where $L$ is a standard two-dimensional, 5-point Laplace stencil operator (with potentially anisotropic diffusion coefficients), and $w$ is a smooth right-hand side vector.
 
 * `hypre_test.cpp`: the Laplace operator is discretized using a simple second-order centered difference approximation on a cell-centered finite-volume grid.  The problem is solved using HYPRE's PFMG geometric multigrid solver.
 
