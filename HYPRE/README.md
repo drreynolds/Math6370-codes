@@ -12,11 +12,11 @@ where $L$ is a standard two-dimensional, 5-point Laplace stencil operator (with 
 
 * `hypre_test_fd.cpp`: the Laplace operator is discretized using a simple second-order centered difference approximation on a nodal finite-difference grid.  The problem is solved using HYPRE's PFMG geometric multigrid solver.
 
-  Note that although we might naturally choose to require a grid size of Nx=$$2^k+1$$ for geometric multigrid solvers on finite-difference grids, HYPRE's PFMG geometric-multigrid solver requires that Nx=$$2^k$$.
+  Note that although we might naturally choose to require a grid size of Nx=$2^k+1$ for geometric multigrid solvers on finite-difference grids, HYPRE's PFMG geometric-multigrid solver requires that Nx=$2^k$.
 
 * `hypre_test2_fd.cpp`: the Laplace operator is discretized using a simple second-order centered difference approximation on a cell-centered finite-volume grid.  The problem is solved using HYPRE's PCG linear solver, that is preconditioned using HYPRE's PFMG geometric multigrid solver.
 
-  As with `hypre_test_fd.cpp`, we must use a grid with sizes Nx=$$2^k$$.
+  As with `hypre_test_fd.cpp`, we must use a grid with sizes Nx=$2^k$.
 
 
 ## Building
