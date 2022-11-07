@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 
 /* Inclusions */
@@ -55,7 +54,7 @@ int main(int argc, char* argv[]) {
   v1 = malloc(nx*ny * sizeof(double));
   v2 = malloc(nx*ny * sizeof(double));
   v3 = malloc(nx*ny * sizeof(double));
-  
+
   /* set grid spacing */
   dx = 1.0/nx;
   dy = 1.0/ny;
@@ -126,13 +125,13 @@ int main(int argc, char* argv[]) {
 	/* update v2 and v3 */
 	v2[idx(i,j,nx)] += c*dt/dx*(v1_E - v1_W);
 	v3[idx(i,j,nx)] += c*dt/dy*(v1_N - v1_S);
-	
+
       } /* for j */
     } /* for i */
 
     /* update solution for plotting */
-    for (j=0; j<ny; j++) 
-      for (i=0; i<nx; i++) 
+    for (j=0; j<ny; j++)
+      for (i=0; i<nx; i++)
 	u[idx(i,j,nx)] += dt*v1[idx(i,j,nx)];
 
     /* update time */
@@ -155,8 +154,8 @@ int main(int argc, char* argv[]) {
     }
 
   } /* for it */
-  
-  
+
+
   /* output final solution */
   stime = get_time();
   toutput = t;
@@ -179,4 +178,3 @@ int main(int argc, char* argv[]) {
 
   return 0;
 } /* end main */
-

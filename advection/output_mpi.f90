@@ -1,15 +1,14 @@
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !=================================================================
 
 
 subroutine output_mpi(u, t, nxloc, nyloc, pid, pcoords, &
                       nx, ny, px, py, noutput)
   !===============================================================
-  ! Description: 
-  !    Writes current solution to disk in parallel, with a 
+  ! Description:
+  !    Writes current solution to disk in parallel, with a
   !    separate file for each MPI process.
   !===============================================================
   ! inclusions
@@ -21,9 +20,9 @@ subroutine output_mpi(u, t, nxloc, nyloc, pid, pcoords, &
   real*8,  intent(in) :: t, u(nxloc,nyloc)
   integer :: i, j
   character*50 :: outname
-  
+
   ! internals
-  
+
   ! set output file name
   ! Note: we reserve the first set of digits for the MPI process (unused here)
   write(outname,'(5Hu_sol,f4.3,f4.3)') float(pid)/1000.0 , noutput/1000.0

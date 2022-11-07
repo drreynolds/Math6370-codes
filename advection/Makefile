@@ -28,10 +28,10 @@ cpp : advection_cpp.exe advection_mpi_cpp.exe advection_1sided.exe
 advection_cpp.exe : advection.cpp output.cpp initialize.cpp get_time.c
 	$(CXX) $(CXXFLAGS) $^ -lm -o $@
 
-advection_mpi_cpp.exe : advection_mpi.cpp output_mpi.cpp initialize_mpi.cpp check_err.c
+advection_mpi_cpp.exe : advection_mpi.cpp output_mpi.cpp initialize_mpi.cpp
 	$(MPICXX) $(CXXFLAGS) $^ -lm -o $@
 
-advection_1sided.exe : advection_1sided.cpp output_1sided.cpp initialize_1sided.cpp exchange_1sided.cpp check_err.c
+advection_1sided.exe : advection_1sided.cpp output_1sided.cpp initialize_1sided.cpp
 	$(MPICXX) $(CXXFLAGS) $^ -lm -o $@
 
 
@@ -58,7 +58,7 @@ clean :
 	\rm -rf results_*
 
 realclean : clean
-	\rm -f *.exe *~ 
+	\rm -f *.exe *~
 
 
 ####### End of Makefile #######

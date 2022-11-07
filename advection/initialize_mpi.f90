@@ -1,13 +1,12 @@
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !=================================================================
 
 subroutine initialize_mpi(u, v1, v2, v3, c, dx, dy, &
                           xl, yl, nxloc, nyloc, myid)
   !===============================================================
-  ! Description: 
+  ! Description:
   !    Sets the initial conditions into u, v1, v2, v3.
   !===============================================================
   ! inclusions
@@ -20,9 +19,9 @@ subroutine initialize_mpi(u, v1, v2, v3, c, dx, dy, &
   real*8  :: xspan_c(nxloc), xspan_h(nxloc), yspan_c(nyloc), yspan_h(nyloc)
   real*8  :: x_c, x_h, y_c, y_h
   integer :: i, j
-  
+
   ! internals
-  
+
   ! set grid spacing and mesh points
   do i=1,nxloc
      xspan_c(i) = dx/2.d0 + (i-1)*dx + xl
@@ -58,7 +57,7 @@ subroutine initialize_mpi(u, v1, v2, v3, c, dx, dy, &
 
      end do
   end do
-  
+
   return
 
   ! end program

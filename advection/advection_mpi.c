@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   11 May 2017 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -23,7 +22,7 @@ int main(int argc, char* argv[]) {
   /* intialize MPI */
   parallel_decomp p2d;
   create_parallel_decomp(&p2d);
-  
+
   ierr = MPI_Init(&argc, &argv);
   check_err(ierr, MPI_COMM_WORLD, "MPI_Init");
 
@@ -189,13 +188,13 @@ int main(int argc, char* argv[]) {
 	/* update v2 and v3 */
 	v2[idx(i,j,p2d.nxloc)] += c*dt/dx*(v1_E - v1_W);
 	v3[idx(i,j,p2d.nxloc)] += c*dt/dy*(v1_N - v1_S);
-	
+
       } /* for i */
     } /* for j */
 
     /* update solution for plotting */
-    for (j=0; j<p2d.nyloc; j++) 
-      for (i=0; i<p2d.nxloc; i++) 
+    for (j=0; j<p2d.nyloc; j++)
+      for (i=0; i<p2d.nxloc; i++)
 	u[idx(i,j,p2d.nxloc)] += dt*v1[idx(i,j,p2d.nxloc)];
 
     /* update time */
@@ -219,7 +218,7 @@ int main(int argc, char* argv[]) {
     }
 
   } /* for it */
-  
+
   /* output final solution */
   stime = MPI_Wtime();
   toutput = t;
@@ -296,7 +295,7 @@ int Communication1(double *v2, double *v3, parallel_decomp *p2d) {
 
   /* declarations */
   int i, j, ierr, nbcoords[2];
-  
+
   /* allocate send/recv arrays if NULL */
   if (p2d->v2recvE == NULL)
     p2d->v2recvE = (double *) malloc( p2d->nyloc * sizeof(double) );
@@ -366,10 +365,10 @@ int Communication1(double *v2, double *v3, parallel_decomp *p2d) {
 
 
 int Communication2(double *v1, parallel_decomp *p2d) {
-  
+
   /* declarations */
   int i, j, ierr, nbcoords[2];
-  
+
   /* allocate send/recv arrays if NULL */
   if (p2d->v1recvW == NULL)
     p2d->v1recvW = (double *) malloc( p2d->nyloc * sizeof(double) );

@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   7 February 2015 */
+   Math 4370 / 6370 */
 
 
 /* Inclusions */
@@ -34,11 +33,11 @@ void output(double* u, double t, int nx, int ny, int noutput) {
   fprintf(FID, "%.16e\n", t);
 
   /* output the solution values and close the data set */
-  for (j=0; j<ny; j++) 
-    for (i=0; i<nx; i++) 
+  for (j=0; j<ny; j++)
+    for (i=0; i<nx; i++)
       fprintf(FID, "%.16e\n",u[idx(i,j,nx)]);
   fclose(FID);
-    
+
   /* now output a metadata file, containing general run information
      Note: the two 1's will be used for the MPI process dimensions (unused here) */
   FID = fopen("u_sol.txt","w");

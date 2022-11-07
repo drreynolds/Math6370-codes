@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   11 May 2017 */
+   Math 4370 / 6370 */
 
 #ifndef _ADVECTION_H
 #define _ADVECTION_H
@@ -48,7 +47,7 @@ int Communication1(double *v2, double *v3, parallel_decomp *p2d);
 
 int Communication2(double *v1, parallel_decomp *p2d);
 
-void initialize(double *u, double *v1, double *v2, double *v3, double c, 
+void initialize(double *u, double *v1, double *v2, double *v3, double c,
                 double dx, double dy, int is, int ie, int js, int je);
 
 void output(double *u, double t, int nx, int ny, int noutput, parallel_decomp *p2d);

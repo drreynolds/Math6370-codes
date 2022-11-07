@@ -1,29 +1,23 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   11 May 2017 */
+   Math 4370 / 6370 */
 
 
 // Inclusions
 #include <stdio.h>
 #include <string.h>
 #include "advection_mpi.hpp"
-#include "mpi.h"
 
 
 // Writes current solution to disk
 void output(double* u, double t, int nx, int ny, int noutput, parallel_decomp& p2d) {
 
-  // declarations
+  // set process-local output file name
   char outname[100];
-  FILE *FID;
-  int i, j;
-
-  // set output file name
   sprintf(outname, "u_sol.%03i.%03i", p2d.myid, noutput);
 
-  // open output file
-  FID = fopen(outname,"w");
+  // open process-local output file
+  FILE *FID = fopen(outname,"w");
 
   // write data set parameters
   fprintf(FID, "%i\n", p2d.nxloc);
@@ -33,14 +27,13 @@ void output(double* u, double t, int nx, int ny, int noutput, parallel_decomp& p
   fprintf(FID, "%.16e\n", t);
 
   // output the solution values and close the data set
-  for (j=0; j<p2d.nyloc; j++) 
-    for (i=0; i<p2d.nxloc; i++) 
+  for (int j=0; j<p2d.nyloc; j++)
+    for (int i=0; i<p2d.nxloc; i++)
       fprintf(FID, "%.16e\n",u[idx(i,j,p2d.nxloc)]);
   fclose(FID);
 
+  // root process outputs a metadata file, containing general run information
   if (p2d.myid == 0) {
-    // now output a metadata file, containing general run information
-    // Note: the two 1's will be used for the MPI process dimensions (unused here)
     FID = fopen("u_sol.txt","w");
     fprintf(FID, "%i\n", nx);
     fprintf(FID, "%i\n", ny);
@@ -49,5 +42,5 @@ void output(double* u, double t, int nx, int ny, int noutput, parallel_decomp& p
     fprintf(FID, "%i\n", noutput);
     fclose(FID);
   }
-  
+
 } // end output

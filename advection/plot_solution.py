@@ -9,8 +9,7 @@
 #
 # Daniel R. Reynolds
 # SMU Mathematics
-# Math 4370/6370
-# 7 February 2015
+# Math 4370 / 6370
 
 # imports
 from multiprocessing import Process
@@ -29,7 +28,7 @@ filetype = '.png'
 
 ###
 def load_info():
-    """Returns the mesh size, parallelism information, and total 
+    """Returns the mesh size, parallelism information, and total
        number of output times from the input file 'u_sol.txt':
           nx,ny,px,py,nt = load_info() """
     data = np.loadtxt("u_sol.txt", dtype=int)
@@ -80,7 +79,7 @@ def load_snapshot(tstep):
         jstart = pyloc*mloc
         jend   = jstart+nyloc
         u[istart:iend, jstart:jend] = uloc
-    
+
     return [t,u]
 
 ###

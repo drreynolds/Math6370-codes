@@ -1,9 +1,8 @@
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !-----------------------------------------------------------------
-! Description: 
+! Description:
 !    Evolves the first-order 2D wave equations in time.
 !=================================================================
 
@@ -37,7 +36,7 @@ program advection_mpi
   real*8  :: v2_E, v2_W, v3_N, v3_S, v1_W, v1_E, v1_S, v1_N
   real*8  :: stime, ftime, runtime, iotime, inittime, commtime
   real*8, dimension(:,:), allocatable :: u, v1, v2, v3
-  real*8  :: rbuff(3), xl, yl 
+  real*8  :: rbuff(3), xl, yl
   real*8, dimension(:), allocatable :: v2E, v3N, v1W, v1S
   logical :: periods(2)
   namelist /inputs/ nx, ny, nt, tstop, c, dtoutput
@@ -62,9 +61,9 @@ program advection_mpi
   ! initialize timers
   runtime = 0.d0
   iotime = 0.d0
-  inittime = 0.d0 
+  inittime = 0.d0
   commtime = 0.d0
-  
+
   stime = MPI_Wtime()
   ! read problem parameters from input file (should be in this order):
   !    nx - number of nodes in x-direction
@@ -96,7 +95,7 @@ program advection_mpi
   tstop = rbuff(1)
   c = rbuff(2)
   dtoutput = rbuff(3)
-  
+
   if (myid == 0) then
      print *, '  '
      print *, 'Running wave problem:'
@@ -284,7 +283,7 @@ program advection_mpi
   end do
 
 
-  ! output final solution 
+  ! output final solution
   stime = MPI_Wtime()
   toutput = t
   noutput = noutput+1
@@ -293,7 +292,7 @@ program advection_mpi
   call output_mpi(u, t, nxloc, nyloc, myid, pcoords, nx, ny, pdims(1), pdims(2), noutput)
   ftime = MPI_Wtime()
   iotime = iotime + ftime-stime
-  
+
   ! output runtime
   if (myid == 0) then
      print *, ' total initialization time = ', inittime

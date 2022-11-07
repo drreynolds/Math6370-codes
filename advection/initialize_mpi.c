@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   11 May 2017 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdlib.h>
@@ -23,7 +22,7 @@ void initialize(double* u, double* v1, double* v2, double* v3, double c,
   xspan_h = (double *) malloc(nxloc * sizeof(double));
   yspan_c = (double *) malloc(nyloc * sizeof(double));
   yspan_h = (double *) malloc(nyloc * sizeof(double));
-  
+
   /* set local coordinates */
   for (i=is; i<=ie; i++) {
     xspan_c[i-is] = dx*(0.5 + i);
@@ -36,7 +35,7 @@ void initialize(double* u, double* v1, double* v2, double* v3, double c,
 
   /* set initial condition for solution and derivatives */
   for (j=0; j<nyloc; j++) {
-    
+
     /* y locations */
     y_c = yspan_c[j];
     y_h = yspan_h[j];
@@ -55,7 +54,7 @@ void initialize(double* u, double* v1, double* v2, double* v3, double c,
       v1[idx(i,j,nxloc)] = 0.0;
       v2[idx(i,j,nxloc)] = -200.0*c*(x_h-1.0/3.0) *
   	         exp( -100.0*( pow(x_h-1.0/3.0,2.0) + pow(y_c-0.5,2.0) ) );
-      v3[idx(i,j,nxloc)] = -200.0*c*(y_h-0.5) * 
+      v3[idx(i,j,nxloc)] = -200.0*c*(y_h-0.5) *
    	         exp( -100.0*( pow(x_c-1.0/3.0,2.0) + pow(y_h-0.5,2.0) ) );
 
     } /* for j */
@@ -68,4 +67,3 @@ void initialize(double* u, double* v1, double* v2, double* v3, double c,
   free(yspan_h);
 
 } /* end initialize_mpi */
-

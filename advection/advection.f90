@@ -1,9 +1,8 @@
 ! Daniel R. Reynolds
 ! SMU Mathematics
-! Math 4370/6370
-! 7 February 2015
+! Math 4370 / 6370
 !-----------------------------------------------------------------
-! Description: 
+! Description:
 !    Evolves the first-order 2D wave equations in time.
 !=================================================================
 
@@ -33,9 +32,9 @@ program advection
   real*8 :: runtime, iotime, inittime
   real*8, dimension(:,:), allocatable :: u, v1, v2, v3
   namelist /inputs/ nx, ny, nt, tstop, c, dtoutput
-  
+
   ! internals
-  
+
   call get_time(stime)
   ! read problem parameters from input file (should be in this order):
   !    nx - number of nodes in x-direction
@@ -168,7 +167,7 @@ program advection
   end do
 
 
-  ! output final solution 
+  ! output final solution
   call get_time(stime)
   toutput = t
   noutput = noutput+1

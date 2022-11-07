@@ -1,7 +1,6 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   11 May 2017 */
+   Math 4370 / 6370 */
 
 /* Inclusions */
 #include <stdio.h>
@@ -32,11 +31,11 @@ void output(double* u, double t, int nx, int ny, int noutput, parallel_decomp *p
   fprintf(FID, "%.16e\n", t);
 
   /* output the solution values and close the data set */
-  for (j=0; j<p2d->nyloc; j++) 
-    for (i=0; i<p2d->nxloc; i++) 
+  for (j=0; j<p2d->nyloc; j++)
+    for (i=0; i<p2d->nxloc; i++)
       fprintf(FID, "%.16e\n",u[idx(i,j,p2d->nxloc)]);
   fclose(FID);
-    
+
 
   if (p2d->myid == 0) {
     /* now output a metadata file, containing general run information */
@@ -50,4 +49,3 @@ void output(double* u, double t, int nx, int ny, int noutput, parallel_decomp *p
   }
 
 } /* end output_mpi */
-

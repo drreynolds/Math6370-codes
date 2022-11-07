@@ -1,31 +1,23 @@
 /* Daniel R. Reynolds
    SMU Mathematics
-   Math 4370/6370
-   11 May 2017 */
-
+   Math 4370 / 6370 */
 
 // Inclusions
 #include <stdlib.h>
 #include <stdio.h>
 #include <iostream>
 #include <string.h>
-#include <math.h>
+#include <cmath>
 #include "advection_mpi.hpp"
-#include "mpi.h"
 
 
 // Example routine to evolve the first-order 2D wave equations in time
 int main(int argc, char* argv[]) {
 
-  // declarations
-  int nx, ny, nt, i, j, it, ierr;
-  double tstop, c, dtoutput;
-  double v1_N, v1_S, v1_E, v1_W, v2_E, v2_W, v3_N, v3_S;
-
-  // intialize MPI
-  parallel_decomp p2d;
-  ierr = MPI_Init(&argc, &argv);
+  // intialize MPI and allocate parallel decomposition structure
+  int ierr = MPI_Init(&argc, &argv);
   check_err(ierr, MPI_COMM_WORLD, "MPI_Init");
+  parallel_decomp p2d;
 
   ierr = MPI_Comm_size(MPI_COMM_WORLD, &(p2d.numprocs));
   check_err(ierr, MPI_COMM_WORLD, "MPI_Comm_size");
@@ -34,15 +26,19 @@ int main(int argc, char* argv[]) {
   check_err(ierr, MPI_COMM_WORLD, "MPI_Comm_rank");
 
 
-  double stime = MPI_Wtime();
-  if (p2d.myid == 0) {
-    /* read problem parameters from input file (should be in this order):
+  /* root process reads problem parameters from input file
+     (should be in this order):
        nx - number of nodes in x-direction
        ny - number of nodes in y-direction
        nt - number of time steps
        tstop - final time (will stop at nt or stop, whichever is 1st)
        c - wave speed
-       dtoutput - time frequency for outputting solutions */
+       dtoutput - time frequency for outputting solutions
+     and packs these into send buffers */
+  double stime, ftime, iotime, tstop, c, dtoutput, dbuf[3];
+  int nx, ny, nt, i, j, ibuf[3];
+  if (p2d.myid == 0) {
+    stime = MPI_Wtime();
     FILE *FID = fopen("input.txt","r");
     i = fscanf(FID," &inputs\n");
     i = fscanf(FID,"  nx = %i,\n", &nx);
@@ -58,66 +54,48 @@ int main(int argc, char* argv[]) {
     printf("  nt = %i,  tstop = %g\n", nt, tstop);
     printf("  c = %g\n",c);
     printf("  dtoutput = %g\n",dtoutput);
+    ftime = MPI_Wtime();
+    iotime = ftime - stime;
+
+    // fill Bcast buffers
+    ibuf[0] = nx;
+    ibuf[1] = ny;
+    ibuf[2] = nt;
+    dbuf[0] = tstop;
+    dbuf[1] = c;
+    dbuf[2] = dtoutput;
   }
 
-  // root process broadcasts data to others
-  int idata[3];
-  double ddata[3];
-  if (p2d.myid == 0) {
-    idata[0] = nx;
-    idata[1] = ny;
-    idata[2] = nt;
-    ddata[0] = tstop;
-    ddata[1] = c;
-    ddata[2] = dtoutput;
-  }
-  ierr = MPI_Bcast(idata, 3, MPI_INT, 0, MPI_COMM_WORLD);
+  // broadcast data to all procs
+  ierr = MPI_Bcast(&ibuf, 3, MPI_INT, 0, MPI_COMM_WORLD);
   check_err(ierr, MPI_COMM_WORLD, "MPI_Bcast");
-  ierr = MPI_Bcast(ddata, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
+  ierr = MPI_Bcast(&dbuf, 3, MPI_DOUBLE, 0, MPI_COMM_WORLD);
   check_err(ierr, MPI_COMM_WORLD, "MPI_Bcast");
-  nx = idata[0];
-  ny = idata[1];
-  nt = idata[2];
-  tstop = ddata[0];
-  c = ddata[1];
-  dtoutput = ddata[2];
-  double ftime = MPI_Wtime();
-  double iotime = ftime - stime;
 
-  // perform parallel decomposition
+  // unpack buffers
+  nx = ibuf[0];
+  ny = ibuf[1];
+  nt = ibuf[2];
+  tstop = dbuf[0];
+  c = dbuf[1];
+  dtoutput = dbuf[2];
+
+  // set up parallel decomposition structure
   stime = MPI_Wtime();
-  p2d.periodic[0] = 1;
-  p2d.periodic[1] = 1;
-  p2d.pdims[0] = 0;
-  p2d.pdims[1] = 0;
-  ierr = MPI_Dims_create(p2d.numprocs, 2, p2d.pdims);
-  check_err(ierr, MPI_COMM_WORLD, "MPI_Dims_create");
+  p2d.setup(nx, ny);
 
-  ierr = MPI_Cart_create(MPI_COMM_WORLD, 2, p2d.pdims, p2d.periodic, 0, &(p2d.comm));
-  check_err(ierr, MPI_COMM_WORLD, "MPI_Cart_create");
-
-  ierr = MPI_Cart_coords(p2d.comm, p2d.myid, 2, p2d.pcoords);
-  check_err(ierr, p2d.comm, "MPI_Cart_get");
-
-  int is = p2d.pcoords[0]*nx/p2d.pdims[0];
-  int ie = (p2d.pcoords[0]+1)*nx/p2d.pdims[0]-1;
-  int js = p2d.pcoords[1]*ny/p2d.pdims[1];
-  int je = (p2d.pcoords[1]+1)*ny/p2d.pdims[1]-1;
-  
   // allocate arrays
-  p2d.nxloc = ie-is+1;
-  p2d.nyloc = je-js+1;
   double *u  = new double[p2d.nxloc*p2d.nyloc];
   double *v1 = new double[p2d.nxloc*p2d.nyloc];
   double *v2 = new double[p2d.nxloc*p2d.nyloc];
   double *v3 = new double[p2d.nxloc*p2d.nyloc];
-  
+
   // set grid spacing
-  double dx = 1.0/nx;
-  double dy = 1.0/ny;
+  const double dx = 1.0/nx;
+  const double dy = 1.0/ny;
 
   // set initial conditions
-  initialize(u, v1, v2, v3, c, dx, dy, is, ie, js, je);
+  initialize(u, v1, v2, v3, c, dx, dy, p2d);
   ftime = MPI_Wtime();
   double inittime = ftime - stime;
 
@@ -133,12 +111,12 @@ int main(int argc, char* argv[]) {
   iotime += (ftime - stime);
 
   // set time step
-  double dt = (dx < dy) ? dx/c/50.0 : dy/c/50.0;
+  const double dt = (dx < dy) ? dx/c/50.0 : dy/c/50.0;
 
-  // start time stepping 
+  // start time stepping
   double runtime = 0.0;
   double commtime = 0.0;
-  for (it=0; it<nt; it++) {
+  for (int it=0; it<nt; it++) {
 
     // communicate v2 (EAST/WEST) & v3 (NORTH/SOUTH)
     stime = MPI_Wtime();
@@ -146,29 +124,21 @@ int main(int argc, char* argv[]) {
     check_err(ierr, p2d.comm, "Communication1");
     ftime = MPI_Wtime();
     commtime += ftime - stime;
-    
-    // start timer
-    stime = MPI_Wtime();
 
     // first update v1 to get to half time step
     // get relevant values for this location
+    stime = MPI_Wtime();
     for (j=0; j<p2d.nyloc; j++) {
       for (i=0; i<p2d.nxloc; i++) {
 
 	// access relevant components of v2 and v3
-	if (i == p2d.nxloc-1)   v2_E = p2d.v2recvE[j];
-	else                    v2_E = v2[idx(i+1,j,p2d.nxloc)];
-
-	v2_W = v2[idx(i,j,p2d.nxloc)];
-
-	if (j == p2d.nyloc-1)   v3_N = p2d.v3recvN[i];
-	else                    v3_N = v3[idx(i,j+1,p2d.nxloc)];
-
-	v3_S = v3[idx(i,j,p2d.nxloc)];
+	double v2_E = (i == p2d.nxloc-1) ? p2d.v2recvE[j] : v2[idx(i+1,j,p2d.nxloc)];
+        double v2_W = v2[idx(i,j,p2d.nxloc)];
+        double v3_N = (j == p2d.nyloc-1) ? p2d.v3recvN[i] : v3[idx(i,j+1,p2d.nxloc)];
+        double v3_S = v3[idx(i,j,p2d.nxloc)];
 
 	// update v1
-	v1[idx(i,j,p2d.nxloc)] += c*dt/dx*(v2_E - v2_W)
-                                + c*dt/dy*(v3_N - v3_S);
+	v1[idx(i,j,p2d.nxloc)] += c*dt/dx*(v2_E - v2_W) + c*dt/dy*(v3_N - v3_S);
 
       } // for j
     } // for i
@@ -181,7 +151,7 @@ int main(int argc, char* argv[]) {
     check_err(ierr, p2d.comm, "Communication2");
     ftime = MPI_Wtime();
     commtime += ftime - stime;
-    
+
     // next update v2 & v3 to get to full time step
     // get relevant values for this location
     stime = MPI_Wtime();
@@ -189,26 +159,21 @@ int main(int argc, char* argv[]) {
       for (i=0; i<p2d.nxloc; i++) {
 
 	// access relevant components of v1
-	if (i == 0)    v1_W = p2d.v1recvW[j];
-	else           v1_W = v1[idx(i-1,j,p2d.nxloc)];
-
-	v1_E = v1[idx(i,j,p2d.nxloc)];
-
-	if (j == 0)    v1_S = p2d.v1recvS[i];
-	else           v1_S = v1[idx(i,j-1,p2d.nxloc)];
-
-	v1_N = v1[idx(i,j,p2d.nxloc)];
+	double v1_W = (i == 0) ? p2d.v1recvW[j] : v1[idx(i-1,j,p2d.nxloc)];
+        double v1_E = v1[idx(i,j,p2d.nxloc)];
+        double v1_S = (j == 0) ? p2d.v1recvS[i] : v1[idx(i,j-1,p2d.nxloc)];
+        double v1_N = v1[idx(i,j,p2d.nxloc)];
 
 	// update v2 and v3
 	v2[idx(i,j,p2d.nxloc)] += c*dt/dx*(v1_E - v1_W);
 	v3[idx(i,j,p2d.nxloc)] += c*dt/dy*(v1_N - v1_S);
-	
+
       } // for j
     } // for i
 
     // update solution for plotting
-    for (j=0; j<p2d.nyloc; j++) 
-      for (i=0; i<p2d.nxloc; i++) 
+    for (j=0; j<p2d.nyloc; j++)
+      for (i=0; i<p2d.nxloc; i++)
 	u[idx(i,j,p2d.nxloc)] += dt*v1[idx(i,j,p2d.nxloc)];
 
     // update time
@@ -232,14 +197,14 @@ int main(int argc, char* argv[]) {
     }
 
   } // for it
-  
+
 
   // output final solution
   stime = MPI_Wtime();
   toutput = t;
   noutput++;
   if (p2d.myid == 0)
-    printf("writing output file %i, step = %i, t = %g\n", noutput, it, t);
+    printf("writing output file %i, step = %i, t = %g\n", noutput, nt, t);
   output(u, t, nx, ny, noutput, p2d);
   ftime = MPI_Wtime();
   iotime += ftime - stime;
@@ -257,6 +222,7 @@ int main(int argc, char* argv[]) {
   delete[] v1;
   delete[] v2;
   delete[] v3;
+  p2d.free();
 
   // finalize MPI
   ierr = MPI_Finalize();
@@ -268,13 +234,77 @@ int main(int argc, char* argv[]) {
 //-------------------------------------------------------
 
 
+// error checking routine for successful MPI calls
+void check_err(const int ierr, MPI_Comm comm, const char* fname) {
+  if (ierr != MPI_SUCCESS) {
+    std::cerr << " error in " << fname << " = " << ierr << std::endl;
+    MPI_Abort(comm, ierr);
+  }
+}
+
+
+// setup routine for parallel decomposition structure
+void parallel_decomp::setup(int nx, int ny) {
+
+  // set up 2D Cartesian communicator
+  this->periodic[0] = 1;
+  this->periodic[1] = 1;
+  this->pdims[0] = 0;
+  this->pdims[1] = 0;
+  int ierr = MPI_Dims_create(this->numprocs, 2, this->pdims);
+  check_err(ierr, MPI_COMM_WORLD, "MPI_Dims_create");
+
+  ierr = MPI_Cart_create(MPI_COMM_WORLD, 2, this->pdims, this->periodic, 0, &(this->comm));
+  check_err(ierr, MPI_COMM_WORLD, "MPI_Cart_create");
+
+  ierr = MPI_Cart_coords(this->comm, this->myid, 2, this->pcoords);
+  check_err(ierr, this->comm, "MPI_Cart_get");
+
+  // determine local extents
+  this->is = this->pcoords[0] * nx / this->pdims[0];
+  this->ie = (this->pcoords[0] + 1) * nx / this->pdims[0] - 1;
+  this->js = this->pcoords[1] * ny / this->pdims[1];
+  this->je = (this->pcoords[1] + 1) * ny / this->pdims[1] - 1;
+
+  // determine local array extents
+  this->nxloc = this->ie - this->is + 1;
+  this->nyloc = this->je - this->js + 1;
+
+  // allocate send/recv arrays
+  if (this->v2recvE == NULL)  this->v2recvE = new double[this->nyloc];
+  if (this->v3recvN == NULL)  this->v3recvN = new double[this->nxloc];
+  if (this->v2sendW == NULL)  this->v2sendW = new double[this->nyloc];
+  if (this->v3sendS == NULL)  this->v3sendS = new double[this->nxloc];
+  if (this->v1recvW == NULL)  this->v1recvW = new double[this->nyloc];
+  if (this->v1recvS == NULL)  this->v1recvS = new double[this->nxloc];
+  if (this->v1sendE == NULL)  this->v1sendE = new double[this->nyloc];
+  if (this->v1sendN == NULL)  this->v1sendN = new double[this->nxloc];
+
+  // determine process neighbors
+  int nbcoords[2];
+  nbcoords[0] = this->pcoords[0]-1;
+  nbcoords[1] = this->pcoords[1];
+  ierr = MPI_Cart_rank(this->comm, nbcoords, &(this->nbW));
+  check_err(ierr, this->comm, "MPI_Cart_rank");
+
+  nbcoords[0] = this->pcoords[0]+1;
+  nbcoords[1] = this->pcoords[1];
+  ierr = MPI_Cart_rank(this->comm, nbcoords, &(this->nbE));
+  check_err(ierr, this->comm, "MPI_Cart_rank");
+
+  nbcoords[0] = this->pcoords[0];
+  nbcoords[1] = this->pcoords[1]-1;
+  ierr = MPI_Cart_rank(this->comm, nbcoords, &(this->nbS));
+  check_err(ierr, this->comm, "MPI_Cart_rank");
+
+  nbcoords[0] = this->pcoords[0];
+  nbcoords[1] = this->pcoords[1]+1;
+  ierr = MPI_Cart_rank(this->comm, nbcoords, &(this->nbN));
+  check_err(ierr, this->comm, "MPI_Cart_rank");
+}
+
+
 int parallel_decomp::Communication1(double *v2, double *v3) {
-  
-  // allocate send/recv arrays if NULL
-  if (v2recvE == NULL)  v2recvE = new double[nyloc];
-  if (v3recvN == NULL)  v3recvN = new double[nxloc];
-  if (v2sendW == NULL)  v2sendW = new double[nyloc];
-  if (v3sendS == NULL)  v3sendS = new double[nxloc];
 
   // initialize send/recv buffers
   for (int j=0; j<nyloc; j++)  v2sendW[j] = v2[idx(0,j,nxloc)];
@@ -282,34 +312,9 @@ int parallel_decomp::Communication1(double *v2, double *v3) {
   for (int j=0; j<nyloc; j++)  v2recvE[j] = 0.0;
   for (int i=0; i<nxloc; i++)  v3recvN[i] = 0.0;
 
-  // determine process 'neighbors'
-  int ierr;
-  if (nbE < 0) {
-    int nbcoords[2];
-    nbcoords[0] = pcoords[0]-1;
-    nbcoords[1] = pcoords[1];
-    ierr = MPI_Cart_rank(comm, nbcoords, &nbW);
-    check_err(ierr, comm, "MPI_Cart_rank");
-
-    nbcoords[0] = pcoords[0]+1;
-    nbcoords[1] = pcoords[1];
-    ierr = MPI_Cart_rank(comm, nbcoords, &nbE);
-    check_err(ierr, comm, "MPI_Cart_rank");
-
-    nbcoords[0] = pcoords[0];
-    nbcoords[1] = pcoords[1]-1;
-    ierr = MPI_Cart_rank(comm, nbcoords, &nbS);
-    check_err(ierr, comm, "MPI_Cart_rank");
-
-    nbcoords[0] = pcoords[0];
-    nbcoords[1] = pcoords[1]+1;
-    ierr = MPI_Cart_rank(comm, nbcoords, &nbN);
-    check_err(ierr, comm, "MPI_Cart_rank");
-  }  // end if (nbE < 0)
-
   // open send/receive channels
   MPI_Request req[4];
-  ierr = MPI_Irecv(v2recvE, nyloc, MPI_DOUBLE, nbE, 2, comm, &(req[0]));
+  int ierr = MPI_Irecv(v2recvE, nyloc, MPI_DOUBLE, nbE, 2, comm, &(req[0]));
   check_err(ierr, comm, "MPI_Irecv");
 
   ierr = MPI_Irecv(v3recvN, nxloc, MPI_DOUBLE, nbN, 4, comm, &(req[1]));
@@ -333,12 +338,6 @@ int parallel_decomp::Communication1(double *v2, double *v3) {
 
 
 int parallel_decomp::Communication2(double *v1) {
-  
-  // allocate send/recv arrays if NULL
-  if (v1recvW == NULL)  v1recvW = new double[nyloc];
-  if (v1recvS == NULL)  v1recvS = new double[nxloc];
-  if (v1sendE == NULL)  v1sendE = new double[nyloc];
-  if (v1sendN == NULL)  v1sendN = new double[nxloc];
 
   // initialize send/recv buffers
   for (int j=0; j<nyloc; j++)  v1sendE[j] = v1[idx(nxloc-1,j,nxloc)];
