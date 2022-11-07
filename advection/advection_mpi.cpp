@@ -271,14 +271,14 @@ void parallel_decomp::setup(int nx, int ny) {
   this->nyloc = this->je - this->js + 1;
 
   // allocate send/recv arrays
-  if (this->v2recvE == NULL)  this->v2recvE = new double[this->nyloc];
-  if (this->v3recvN == NULL)  this->v3recvN = new double[this->nxloc];
-  if (this->v2sendW == NULL)  this->v2sendW = new double[this->nyloc];
-  if (this->v3sendS == NULL)  this->v3sendS = new double[this->nxloc];
-  if (this->v1recvW == NULL)  this->v1recvW = new double[this->nyloc];
-  if (this->v1recvS == NULL)  this->v1recvS = new double[this->nxloc];
-  if (this->v1sendE == NULL)  this->v1sendE = new double[this->nyloc];
-  if (this->v1sendN == NULL)  this->v1sendN = new double[this->nxloc];
+  if (this->v2recvE == nullptr)  this->v2recvE = new double[this->nyloc];
+  if (this->v3recvN == nullptr)  this->v3recvN = new double[this->nxloc];
+  if (this->v2sendW == nullptr)  this->v2sendW = new double[this->nyloc];
+  if (this->v3sendS == nullptr)  this->v3sendS = new double[this->nxloc];
+  if (this->v1recvW == nullptr)  this->v1recvW = new double[this->nyloc];
+  if (this->v1recvS == nullptr)  this->v1recvS = new double[this->nxloc];
+  if (this->v1sendE == nullptr)  this->v1sendE = new double[this->nyloc];
+  if (this->v1sendN == nullptr)  this->v1sendN = new double[this->nxloc];
 
   // determine process neighbors
   int nbcoords[2];
