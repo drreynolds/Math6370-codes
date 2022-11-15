@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   fscanf(FID,"  c = %lf,\n", &c);
   fscanf(FID,"  dtoutput = %lf,\n", &dtoutput);
   fclose(FID);
-  std::cout << "\nRunning wave problem using Kokkos with CUDA backend:\n";
+  std::cout << "\nRunning wave problem using Kokkos with hybrid CUDA+OpenMP backend:\n";
   std::cout << "  nx = " << nx << ",  ny = " << ny << std::endl;
   std::cout << "  nt = " << nt << ",  tstop = " << tstop << std::endl;
   std::cout << "  c = " << c << std::endl;
@@ -183,7 +183,7 @@ int main(int argc, char* argv[]) {
 
   // output final solution
   timer.reset();
-  toutput = t0 + nt*dt;
+  toutput = tstop;
   noutput++;
   std::cout << "writing output file " << noutput << ", step = "
             << nt << ", t = " << toutput << std::endl;

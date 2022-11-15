@@ -2,7 +2,7 @@
   nx = 500,
   ny = 500,
   nt = 1000000,
-  tstop = 0.5,
+  tstop = 0.2,
   c = 2.0,
   dtoutput = 0.01,
  &end
