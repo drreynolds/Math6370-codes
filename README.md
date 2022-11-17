@@ -11,5 +11,19 @@ Note: we use branches to focus on specific code types:
 * raja: accelerator-based parallelism with RAJA (C++ only)
 * kokkos: accelerator-based parallelism with Kokkos (C++ only)
 
+In the `kokkos` branch, we provide `runtests_m2.sh` scripts in each
+example folder.  These assume that you are running on the ManeframeII
+cluster at SMU, that you have already acquired an interactive session
+on a GPU node,
+```
+srun -p development -c 4 --mem=16G --gres=gpu:volta:1 --pty $SHELL
+```
+and that you have already configured your environment for using Kokkos,
+```
+module load spack gcc-9.2
+. /hpc/spack/share/spack/setup-env.sh
+spack load kokkos/qu45u5v
+```
+
 [Daniel R. Reynolds](https://github.com/drreynolds)  
 [Mathematics @ SMU](https://www.smu.edu/math)
