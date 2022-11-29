@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # set desired number of chemical bins
-N=2000
+N=10000
 
 # set desired numbers of OpenMP threads
 THREADS=(1 2 4 8 16 32)
@@ -30,3 +30,8 @@ done
 echo "  "
 echo "running CUDA version, chemistry.cuda:"
 ./chemistry.cuda $N
+
+# run UVM test
+echo "  "
+echo "running UVM version, chemistry.cuda:"
+./chemistry.uvm $N

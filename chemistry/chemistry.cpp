@@ -49,6 +49,10 @@ int main(int argc, char* argv[]) {
   typedef Kokkos::Cuda       ExecSpace;
   typedef Kokkos::CudaSpace  MemSpace;
   std::cout << "Running chemistry solver with " << n << " intervals, using Kokkos with CUDA backend:\n";
+#elif defined(USE_UVM)
+  typedef Kokkos::Cuda          ExecSpace;
+  typedef Kokkos::CudaUVMSpace  MemSpace;
+  std::cout << "Running chemistry solver with " << n << " intervals, using Kokkos with CUDA backend:\n";
 #else
   typedef Kokkos::Serial     ExecSpace;
   typedef Kokkos::HostSpace  MemSpace;
@@ -64,24 +68,33 @@ int main(int argc, char* argv[]) {
   VecViewDev  u_d( "u_d", n );
   VecViewDev  v_d( "v_d", n );
   VecViewDev  w_d( "w_d", n );
+#ifndef USE_UVM  
   VecViewHost T_h( "T_h", n );
   VecViewHost u_h( "u_h", n );
   VecViewHost v_h( "v_h", n );
   VecViewHost w_h( "w_h", n );
+#endif
   double alloctime = timer.seconds();
 
   // set random temperature field, initial guesses at chemical densities on host
   timer.reset();
+#ifdef USE_UVM
+  for (int i=0; i<n; i++)  T_d(i) = random() / (pow(2.0,31.0) - 1.0);
+  for (int i=0; i<n; i++)  u_d(i) = 0.35;
+  for (int i=0; i<n; i++)  v_d(i) = 0.1;
+  for (int i=0; i<n; i++)  w_d(i) = 0.5;
+#else
   for (int i=0; i<n; i++)  T_h(i) = random() / (pow(2.0,31.0) - 1.0);
   for (int i=0; i<n; i++)  u_h(i) = 0.35;
   for (int i=0; i<n; i++)  v_h(i) = 0.1;
-  for (int i=0; i<n; i++)  w_h(i) = 0.5;
+  for (int i=0; i<n; i++)  w_h(i) = 0.5;  
 
   // transfer T, u, v, w to device
   Kokkos::deep_copy( T_d, T_h );
   Kokkos::deep_copy( u_d, u_h );
   Kokkos::deep_copy( v_d, v_h );
   Kokkos::deep_copy( w_d, w_h );
+#endif  
   double inittime = timer.seconds();
 
   // call solver over n intervals
@@ -100,11 +113,13 @@ int main(int argc, char* argv[]) {
   // wait for asynchronous calculations to complete
   Kokkos::fence();
 
+#ifndef USE_UVM
   // copy results back to host
   Kokkos::deep_copy( T_h, T_d );
   Kokkos::deep_copy( u_h, u_d );
   Kokkos::deep_copy( v_h, v_d );
   Kokkos::deep_copy( w_h, w_d );
+#endif  
   double runtime = timer.seconds();
 
   // output solution time

@@ -14,3 +14,7 @@ target_link_libraries(chemistry.openmp Kokkos::kokkos)
 add_executable(chemistry.cuda chemistry.cpp)
 target_compile_definitions(chemistry.cuda PRIVATE -DUSE_CUDA)
 target_link_libraries(chemistry.cuda Kokkos::kokkos)
+
+add_executable(chemistry.uvm chemistry.cpp)
+target_compile_definitions(chemistry.uvm PRIVATE -DUSE_UVM)
+target_link_libraries(chemistry.uvm Kokkos::kokkos)
