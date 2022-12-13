@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # configure build
-cmake -DKokkos_DIR=/usr/local/kokkos-3.6.00/gcc-11.2.0/lib/cmake/Kokkos
+cmake -DKokkos_DIR=/usr/local/kokkos-3.7.00/gcc-11.3.0/lib/cmake/Kokkos
 
 # build executables
 make
