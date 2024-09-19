@@ -6,6 +6,7 @@
 // Inclusions 
 #include <stdlib.h>
 #include <iostream>
+#include <iomanip>
 #include "get_time.h"
 
 
@@ -64,7 +65,7 @@ int main(int argc, char* argv[]) {
   runtime = ftime - stime;
 
   // output computed value and error 
-  std::cout << " computed pi = " << pi << "\n";
+  std::cout << " computed pi = " << std::setprecision(16) << pi << std::endl;
   std::cout << "     true pi = " << pi_true << "\n";
   std::cout << "       error = " << pi_true-pi << "\n";
   std::cout << "     runtime = " << runtime << "\n";
