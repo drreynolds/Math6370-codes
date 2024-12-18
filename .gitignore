@@ -33,3 +33,7 @@
 
 # VS Code configuration files
 *.vscode
+
+# CMake build folders
+*/build
+
