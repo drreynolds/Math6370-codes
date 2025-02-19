@@ -7,6 +7,7 @@
 #include <stdlib.h>
 #include <iostream>
 #include <iomanip>
+#include <cmath>
 #include "get_time.h"
 
 
@@ -22,7 +23,7 @@ int main(int argc, char* argv[]) {
 
   // declarations
   int i, n;
-  double h, pi=0.0, runtime, pi_true=3.14159265358979323846;
+  double h, pi=0.0, runtime, pi_true=M_PI;
   double stime, ftime;
 
   // input the number of intervals 
@@ -42,7 +43,7 @@ int main(int argc, char* argv[]) {
     {
 #ifdef _OPENMP
       std::cout << " starting OpenMP with " 
-		<< omp_get_num_threads() << " processes\n";
+		            << omp_get_num_threads() << " processes\n";
 #endif
 
       // set subinterval width 
