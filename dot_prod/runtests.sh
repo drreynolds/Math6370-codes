@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# set desired vector length
-N=20000000
+# set desired vector lengths
+N=(20000 200000 2000000 20000000)
 
 # configure build
 cmake .
@@ -9,12 +9,17 @@ cmake .
 # build executables
 make
 
-# run serial test
-echo "  "
-echo "running serial version, dot_prod.serial:"
-./dot_prod.serial $N
+# loop over vector lengths
+for n in "${N[@]}"
+do
 
-# run CUDA test
-echo "  "
-echo "running CUDA version, dot_prod.cuda:"
-./dot_prod.cuda $N
+   # run serial test
+   echo "  "
+   echo "running serial version, dot_prod.serial, N = $n:"
+   ./dot_prod.serial $n
+
+   # run CUDA test
+   echo "  "
+   echo "running CUDA version, dot_prod.cuda, N = $n:"
+   ./dot_prod.cuda $n
+done

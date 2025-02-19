@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# set desired number of chemical bins
-N=10000
+# set desired numbers of chemical bins
+N=(10 100 1000 10000)
 
 # configure build
 cmake .
@@ -9,17 +9,22 @@ cmake .
 # build executables
 make
 
-# run serial test
-echo "  "
-echo "running serial version, chemistry.serial:"
-./chemistry.serial $N
+# loop over vector lengths
+for n in "${N[@]}"
+do
 
-# run CUDA test
-echo "  "
-echo "running CUDA version, chemistry.cuda:"
-./chemistry.cuda $N
+   # run serial test
+   echo "  "
+   echo "running serial version, chemistry.serial, N = $n:"
+   ./chemistry.serial $n
 
-# run UVM test
-echo "  "
-echo "running UVM version, chemistry.cuda:"
-./chemistry.uvm $N
+   # run CUDA test
+   echo "  "
+   echo "running CUDA version, chemistry.cuda, N = $n:"
+   ./chemistry.cuda $n
+
+   # run UVM test
+   echo "  "
+   echo "running UVM version, chemistry.uvm, N = $n:"
+   ./chemistry.uvm $n
+done
