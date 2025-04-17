@@ -8,7 +8,7 @@
 #include <iostream>
 #include <string.h>
 #include <cmath>
-#include "advection_mpi.hpp"
+#include "advection_persistent.hpp"
 
 
 // Example routine to evolve the first-order 2D wave equations in time
@@ -301,6 +301,26 @@ void parallel_decomp::setup(int nx, int ny) {
   nbcoords[1] = this->pcoords[1]+1;
   ierr = MPI_Cart_rank(this->comm, nbcoords, &(this->nbN));
   check_err(ierr, this->comm, "MPI_Cart_rank");
+
+  // Set up the phase 1 persistent communicators
+  ierr = MPI_Recv_init(v2recvE, nyloc, MPI_DOUBLE, nbE, 2, comm, &(req_phase1[0]));
+  check_err(ierr, comm, "MPI_Recv_init");
+  ierr = MPI_Recv_init(v3recvN, nxloc, MPI_DOUBLE, nbN, 4, comm, &(req_phase1[1]));
+  check_err(ierr, comm, "MPI_Recv_init");
+  ierr = MPI_Send_init(v2sendW, nyloc, MPI_DOUBLE, nbW, 2, comm, &(req_phase1[2]));
+  check_err(ierr, comm, "MPI_Send_init");
+  ierr = MPI_Send_init(v3sendS, nxloc, MPI_DOUBLE, nbS, 4, comm, &(req_phase1[3]));
+  check_err(ierr, comm, "MPI_Send_init");
+
+  // Set up the phase 2 persistent communicators
+  ierr = MPI_Recv_init(v1recvW, nyloc, MPI_DOUBLE, nbW, 2, comm, &(req_phase2[0]));
+  check_err(ierr, comm, "MPI_Recv_init");
+  ierr = MPI_Recv_init(v1recvS, nxloc, MPI_DOUBLE, nbS, 4, comm, &(req_phase2[1]));
+  check_err(ierr, comm, "MPI_Recv_init");
+  ierr = MPI_Send_init(v1sendE, nyloc, MPI_DOUBLE, nbE, 2, comm, &(req_phase2[2]));
+  check_err(ierr, comm, "MPI_Send_init");
+  ierr = MPI_Send_init(v1sendN, nxloc, MPI_DOUBLE, nbN, 4, comm, &(req_phase2[3]));
+  check_err(ierr, comm, "MPI_Send_init");
 }
 
 
@@ -312,23 +332,13 @@ int parallel_decomp::Communication1(double *v2, double *v3) {
   for (int j=0; j<nyloc; j++)  v2recvE[j] = 0.0;
   for (int i=0; i<nxloc; i++)  v3recvN[i] = 0.0;
 
-  // open send/receive channels
-  MPI_Request req[4];
-  int ierr = MPI_Irecv(v2recvE, nyloc, MPI_DOUBLE, nbE, 2, comm, &(req[0]));
-  check_err(ierr, comm, "MPI_Irecv");
+  // Start all persistent communicators in req_phase1
+  int ierr = MPI_Startall(4, req_phase1);
+  check_err(ierr, comm, "MPI_Startall");
 
-  ierr = MPI_Irecv(v3recvN, nxloc, MPI_DOUBLE, nbN, 4, comm, &(req[1]));
-  check_err(ierr, comm, "MPI_Irecv");
-
-  ierr = MPI_Isend(v2sendW, nyloc, MPI_DOUBLE, nbW, 2, comm, &(req[2]));
-  check_err(ierr, comm, "MPI_Isend");
-
-  ierr = MPI_Isend(v3sendS, nxloc, MPI_DOUBLE, nbS, 4, comm, &(req[3]));
-  check_err(ierr, comm, "MPI_Isend");
-
-  // wait until all communications finish
+  // Wait for all req_phase1 communicators to complete
   MPI_Status stat[4];
-  ierr = MPI_Waitall(4, req, stat);
+  ierr = MPI_Waitall(4, req_phase1, stat);
   check_err(ierr, comm, "MPI_Waitall");
 
   return 0;
@@ -344,25 +354,14 @@ int parallel_decomp::Communication2(double *v1) {
   for (int i=0; i<nxloc; i++)  v1sendN[i] = v1[idx(i,nyloc-1,nxloc)];
   for (int j=0; j<nyloc; j++)  v1recvW[j] = 0.0;
   for (int i=0; i<nxloc; i++)  v1recvS[i] = 0.0;
+  
+  // Start all persistent communicators in req_phase2
+  int ierr = MPI_Startall(4, req_phase2);
+  check_err(ierr, comm, "MPI_Startall");
 
-  // open send/receive channels
-  MPI_Request req[4];
-  int ierr;
-  ierr = MPI_Irecv(v1recvW, nyloc, MPI_DOUBLE, nbW, 2, comm, &(req[0]));
-  check_err(ierr, comm, "MPI_Irecv");
-
-  ierr = MPI_Irecv(v1recvS, nxloc, MPI_DOUBLE, nbS, 4, comm, &(req[1]));
-  check_err(ierr, comm, "MPI_Irecv");
-
-  ierr = MPI_Isend(v1sendE, nyloc, MPI_DOUBLE, nbE, 2, comm, &(req[2]));
-  check_err(ierr, comm, "MPI_Isend");
-
-  ierr = MPI_Isend(v1sendN, nxloc, MPI_DOUBLE, nbN, 4, comm, &(req[3]));
-  check_err(ierr, comm, "MPI_Isend");
-
-  // wait until all communications finish
+  // Wait for all req_phase2 communicators to complete
   MPI_Status stat[4];
-  ierr = MPI_Waitall(4, req, stat);
+  ierr = MPI_Waitall(4, req_phase2, stat);
   check_err(ierr, comm, "MPI_Waitall");
 
   return 0;

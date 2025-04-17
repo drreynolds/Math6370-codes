@@ -23,12 +23,15 @@ CFLAGS = -O2
 all : cpp c f90
 
 
-cpp : advection_cpp.exe advection_mpi_cpp.exe advection_1sided.exe
+cpp : advection_cpp.exe advection_mpi_cpp.exe advection_1sided.exe advection_persistent.exe
 
 advection_cpp.exe : advection.cpp output.cpp initialize.cpp get_time.c
 	$(CXX) $(CXXFLAGS) $^ -lm -o $@
 
 advection_mpi_cpp.exe : advection_mpi.cpp output_mpi.cpp initialize_mpi.cpp
+	$(MPICXX) $(CXXFLAGS) $^ -lm -o $@
+
+advection_persistent.exe : advection_persistent.cpp output_persistent.cpp initialize_persistent.cpp
 	$(MPICXX) $(CXXFLAGS) $^ -lm -o $@
 
 advection_1sided.exe : advection_1sided.cpp output_1sided.cpp initialize_1sided.cpp
