@@ -39,9 +39,9 @@ int main(int argc, char* argv[]) {
 
   /* read problem parameters from input file (should be in this order):
          N - number of nodes in x-direction
-	 M - number of nodes in y-direction
-	px - number of procs in x-direction
-	py - number of procs in y-direction */
+	       M - number of nodes in y-direction
+	      px - number of procs in x-direction
+	      py - number of procs in y-direction */
   int N, M, px, py, buf[4];
   FILE *FID;
   if (myid == 0) {

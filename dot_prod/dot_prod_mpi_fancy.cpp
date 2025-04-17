@@ -20,17 +20,17 @@ int main(int argc, char* argv[]) {
 
   // initialize MPI
   ierr = MPI_Init(&argc, &argv);
-  if (ierr != 0) {
+  if (ierr != MPI_SUCCESS) {
     std::cerr << " error in MPI_Init = " << ierr << std::endl;
     return 1;
   }
   ierr = MPI_Comm_size(MPI_COMM_WORLD, &numprocs);
-  if (ierr != 0) {
+  if (ierr != MPI_SUCCESS) {
     std::cerr << " error in MPI_Comm_size = " << ierr << std::endl;
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
   ierr = MPI_Comm_rank(MPI_COMM_WORLD, &myid);
-  if (ierr != 0) {
+  if (ierr != MPI_SUCCESS) {
     std::cerr << " error in MPI_Comm_rank = " << ierr << std::endl;
     MPI_Abort(MPI_COMM_WORLD, 1);
   }
@@ -82,7 +82,7 @@ int main(int argc, char* argv[]) {
 
   // root node collects result
   ierr = MPI_Reduce(&mysum, &sum, 1, MPI_DOUBLE, MPI_SUM, 0, MPI_COMM_WORLD);
-  if (ierr != 0) {
+  if (ierr != MPI_SUCCESS) {
     std::cerr << " error in MPI_Reduce = " << ierr << std::endl;
     delete[] a;
     delete[] b;

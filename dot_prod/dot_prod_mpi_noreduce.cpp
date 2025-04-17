@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
   if (myid != 0) {
     // everyone sends value to root proc
     if (MPI_Send(&mysum, 1, MPI_DOUBLE, 0,
-		 myid, MPI_COMM_WORLD) != MPI_SUCCESS) {
+		             myid, MPI_COMM_WORLD) != MPI_SUCCESS) {
       std::cerr << "Error in MPI_Send\n";
       MPI_Abort(MPI_COMM_WORLD, 1);
     }
@@ -87,7 +87,7 @@ int main(int argc, char* argv[]) {
     sum = mysum;
     for (p=1; p<numprocs; p++) {
       if (MPI_Recv(&mysum, 1, MPI_DOUBLE, MPI_ANY_SOURCE, MPI_ANY_TAG,
-		   MPI_COMM_WORLD, &stat) != MPI_SUCCESS) {
+		               MPI_COMM_WORLD, &stat) != MPI_SUCCESS) {
          std::cerr << "Error in MPI_Send\n";
 	       MPI_Abort(MPI_COMM_WORLD, 1);
       }

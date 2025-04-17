@@ -153,8 +153,8 @@ int linresid2D(double *u, double *f, double *res, double &norm,
   for (i=1; i<locN-1; i++) {
     for (j=1; j<locM-1; j++) {
       res[idx(i,j,locN)] =  -f[idx(i,j,locN)]
-	+ (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
-	+ (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
+	      + (u[idx(i-1,j,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i+1,j,locN)])/dx/dx
+	      + (u[idx(i,j-1,locN)] - 2.0*u[idx(i,j,locN)] + u[idx(i,j+1,locN)])/dy/dy;
       mynorm += dx*dy*res[idx(i,j,locN)]*res[idx(i,j,locN)];
     }
   }
