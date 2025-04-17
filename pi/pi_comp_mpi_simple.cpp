@@ -9,7 +9,6 @@
 #include <cmath>
 #include "mpi.h"
 
-
 // Prototypes
 inline double f(double a) { return (4.0 / (1.0 + a*a)); }
 
@@ -51,7 +50,7 @@ int main(int argc, char* argv[]) {
   int ie = ((int) (1.0*n/numprocs))*(myid+1);
   if (myid == numprocs-1)  ie = n;
 
-  // perform integration over n intervals
+  // perform integration over my interval
   double mypi = 0.0;
   for (int i=is; i<=ie; i++) {
     double x = h * (i - 0.5);
