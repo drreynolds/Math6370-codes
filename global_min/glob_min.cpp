@@ -41,12 +41,12 @@ struct CombineMinimum {
   KOKKOS_INLINE_FUNCTION CombineMinimum(value_type& value_) : value(value_) {}
   KOKKOS_INLINE_FUNCTION void join(value_type& dest, const value_type& src) const {
     if ( src.fval < dest.fval ) {
-      dest.fval = src.fval;  dest.pt[0] = src.pt[1];  dest.pt[1] = src.pt[1];
+      dest.fval = src.fval;  dest.pt[0] = src.pt[0];  dest.pt[1] = src.pt[1];
     }
   }
   KOKKOS_INLINE_FUNCTION void join(volatile value_type& dest, const volatile value_type& src) const {
     if ( src.fval < dest.fval ) {
-      dest.fval = src.fval;  dest.pt[0] = src.pt[1];  dest.pt[1] = src.pt[1];
+      dest.fval = src.fval;  dest.pt[0] = src.pt[0];  dest.pt[1] = src.pt[1];
     }
   }
   KOKKOS_INLINE_FUNCTION void init(value_type& val) const { val.init(); }
