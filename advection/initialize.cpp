@@ -18,7 +18,7 @@ void initialize(Vec2DHost u_h, Vec2DHost v1_h, Vec2DHost v2_h, Vec2DHost v3_h,
     xspan_h(i) = dx*i;
   }
   Kokkos::View<double*, Kokkos::HostSpace> yspan_c( "y_c", ny );
-  Kokkos::View<double*, Kokkos::HostSpace> yspan_h( "y_c", ny );
+  Kokkos::View<double*, Kokkos::HostSpace> yspan_h( "y_h", ny );
   for (int j=0; j<ny; j++) {
     yspan_c(j) = dy*(0.5 + j);
     yspan_h(j) = dy*j;
