@@ -22,11 +22,11 @@ int main(int argc, char* argv[]) {
 
   /* read problem parameters from input file (should be in this order):
         nx - number of nodes in x-direction
-	ny - number of nodes in y-direction
-	nt - number of time steps
-	tstop - final time (will stop at nt or stop, whichever is 1st)
-	c - wave speed
-	dtoutput - time frequency for outputting solutions */
+       	ny - number of nodes in y-direction
+	      nt - number of time steps
+	      tstop - final time (will stop at nt or stop, whichever is 1st)
+	      c - wave speed
+	      dtoutput - time frequency for outputting solutions */
   Kokkos::Timer timer;
   int nx, ny, nt;
   double tstop, c, dtoutput;
@@ -39,7 +39,7 @@ int main(int argc, char* argv[]) {
   fscanf(FID,"  c = %lf,\n", &c);
   fscanf(FID,"  dtoutput = %lf,\n", &dtoutput);
   fclose(FID);
-  std::cout << "\nRunning wave problem using Kokkos with hybrid CUDA+OpenMP backend:\n";
+  std::cout << "\nRunning wave problem using hybrid parallelism: Kokkos with hybrid CUDA backend for calculation, OpenMP for output:\n";
   std::cout << "  nx = " << nx << ",  ny = " << ny << std::endl;
   std::cout << "  nt = " << nt << ",  tstop = " << tstop << std::endl;
   std::cout << "  c = " << c << std::endl;
@@ -77,15 +77,15 @@ int main(int argc, char* argv[]) {
   // set time step
   const double dt = (dx < dy) ? dx/c/50.0 : dy/c/50.0;
 
-  // ensure exactly 2 OpenMP threads
-  omp_set_num_threads(2);
-
   // create run timer, and global iteration counter
   int numsteps = 0;
   double runtime = 0.0;
+  double copytime = 0.0;
 
-  // create parallel region
-#pragma omp parallel default(shared)
+  // create parallel region with 2 OpenMP threads:
+  //   - thread 0 will perform the time-stepping
+  //   - thread 1 will perform the output
+#pragma omp parallel default(shared) num_threads(2)
   {
     // determine thread number
     int myid = omp_get_thread_num();
@@ -159,27 +159,31 @@ int main(int argc, char* argv[]) {
       // output solution periodically
       if ( t - (toutput + dtoutput) > -1.e-14 ) {
 
-        // wait for both threads to catch up, and then copy device data to host
+        // wait for both threads to catch up, then one thread copies device data to host;
+        // use "single" to enforce the implied barrier at the end so that thread 0 has the
+        // updated toutput value and waits to update u_d until the deep copy is complete.
 #pragma omp barrier
 #pragma omp single
-        Kokkos::deep_copy( u_h, u_d );
+        {
+          Kokkos::Timer copy_timer;
+          Kokkos::deep_copy( u_h, u_d );
+          copytime += copy_timer.seconds();
+          toutput = t;
+        }
 
         // second thread performs output, while first thread continues work
         if (myid == 1) {
           Kokkos::Timer output_timer;
-          toutput = t;
-#pragma omp flush(toutput)
           noutput++;
           std::cout << "writing output file " << noutput << ", step = "
                     << it << ", t = " << t << std::endl;
           output(u_h, u_d, t, nx, ny, noutput);
           iotime += output_timer.seconds();
-#pragma omp flush(iotime)
         }
       }
 
     } // for it
-  } // omp parallel
+  } // end omp parallel region
 
   // output final solution
   timer.reset();
@@ -198,6 +202,8 @@ int main(int argc, char* argv[]) {
             << inittime << std::endl;
   std::cout << " total input/output time   = " << std::setprecision(16)
             << iotime << std::endl;
+  std::cout << " total deep copy time      = " << std::setprecision(16)
+            << copytime << std::endl;
   std::cout << " total simulation time     = " << std::setprecision(16)
             << runtime << std::endl;
   std::cout << " total overall time        = " << std::setprecision(16)

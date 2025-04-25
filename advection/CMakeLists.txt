@@ -10,3 +10,11 @@ target_link_libraries(advection.serial Kokkos::kokkos)
 add_executable(advection.cuda advection.cpp initialize.cpp output.cpp)
 target_compile_definitions(advection.cuda PRIVATE -DUSE_CUDA)
 target_link_libraries(advection.cuda Kokkos::kokkos)
+
+find_package(OpenMP)
+if(OpenMP_CXX_FOUND)
+   add_executable(advection.hybrid advection_hybrid.cpp initialize.cpp output_hybrid.cpp)
+   target_compile_definitions(advection.hybrid PRIVATE -DUSE_CUDA)
+   target_link_libraries(advection.hybrid PUBLIC OpenMP::OpenMP_CXX Kokkos::kokkos)
+endif()
+
